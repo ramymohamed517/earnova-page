@@ -206,7 +206,7 @@
 
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
-    import { getFirestore, doc, getDoc, collection, getDocs } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+    import { getFirestore, doc, getDoc, collection, getDocs, setDoc } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
     import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
 
     const firebaseConfig = {
@@ -239,43 +239,54 @@
       if (user) {
         const userDoc = doc(db, "users", user.email);
         const snap = await getDoc(userDoc);
+        let inviteCode = '';
+
         if (snap.exists()) {
           const data = snap.data();
-          const code = data.inviteCode || generateInviteCode();
-          codeInput.value = code;
-          linkInput.value = `https://yourdomain.com/reg?ic=${code}`;
-
-          const c1 = data.level1Count || 0;
-          const c2 = data.level2Count || 0;
-          const c3 = data.level3Count || 0;
-          const r1 = data.level1Reward || 0;
-          const r2 = data.level2Reward || 0;
-          const r3 = data.level3Reward || 0;
-
-          lvl1Count.textContent = c1;
-          lvl2Count.textContent = c2;
-          lvl3Count.textContent = c3;
-          lvl1Reward.textContent = `EGP ${r1}`;
-          lvl2Reward.textContent = `EGP ${r2}`;
-          lvl3Reward.textContent = `EGP ${r3}`;
-          totalPeople.innerHTML = `إجمالي الأشخاص<br>${c1 + c2 + c3}`;
-          totalRewards.innerHTML = `إجمالي المكافآت<br>EGP ${r1 + r2 + r3}`;
-
-          // Fetch invited users
-          const invitedUsersRef = collection(db, "users", user.email, "invitedUsers");
-          const invitedUsersSnap = await getDocs(invitedUsersRef);
-          invitedUsersTable.innerHTML = "";
-          invitedUsersSnap.forEach((doc) => {
-            const invitedData = doc.data();
-            const row = document.createElement("tr");
-            row.innerHTML = `
-              <td>${doc.id}</td>
-              <td>${invitedData.product || '-'}</td>
-              <td>${invitedData.purchaseDate ? new Date(invitedData.purchaseDate).toLocaleDateString('ar-EG') : '-'}</td>
-            `;
-            invitedUsersTable.appendChild(row);
-          });
+          inviteCode = data.inviteCode || generateInviteCode();
+          if (!data.inviteCode) {
+            // Save the new invite code to Firestore
+            await setDoc(userDoc, { inviteCode }, { merge: true });
+          }
+        } else {
+          // Create a new user document if it doesn't exist
+          inviteCode = generateInviteCode();
+          await setDoc(userDoc, { inviteCode });
         }
+
+        codeInput.value = inviteCode;
+        linkInput.value = `https://ramymohamed517.github.io/earnova-page?ic=${inviteCode}`;
+
+        const c1 = snap.exists() ? snap.data().level1Count || 0 : 0;
+        const c2 = snap.exists() ? snap.data().level2Count || 0 : 0;
+        const c3 = snap.exists() ? snap.data().level3Count || 0 : 0;
+        const r1 = snap.exists() ? snap.data().level1Reward || 0 : 0;
+        const r2 = snap.exists() ? snap.data().level2Reward || 0 : 0;
+        const r3 = snap.exists() ? snap.data().level3Reward || 0 : 0;
+
+        lvl1Count.textContent = c1;
+        lvl2Count.textContent = c2;
+        lvl3Count.textContent = c3;
+        lvl1Reward.textContent = `EGP ${r1}`;
+        lvl2Reward.textContent = `EGP ${r2}`;
+        lvl3Reward.textContent = `EGP ${r3}`;
+        totalPeople.innerHTML = `إجمالي الأشخاص<br>${c1 + c2 + c3}`;
+        totalRewards.innerHTML = `إجمالي المكافآت<br>EGP ${r1 + r2 + r3}`;
+
+        // Fetch invited users
+        const invitedUsersRef = collection(db, "users", user.email, "invitedUsers");
+        const invitedUsersSnap = await getDocs(invitedUsersRef);
+        invitedUsersTable.innerHTML = "";
+        invitedUsersSnap.forEach((doc) => {
+          const invitedData = doc.data();
+          const row = document.createElement("tr");
+          row.innerHTML = `
+            <td>${doc.id}</td>
+            <td>${invitedData.product || '-'}</td>
+            <td>${invitedData.purchaseDate ? new Date(invitedData.purchaseDate).toLocaleDateString('ar-EG') : '-'}</td>
+          `;
+          invitedUsersTable.appendChild(row);
+        });
       } else {
         codeInput.value = "سجّل دخولك أولًا";
         linkInput.value = "";
