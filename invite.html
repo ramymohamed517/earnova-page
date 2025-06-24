@@ -249,7 +249,7 @@
 
     onAuthStateChanged(auth, async (user) => {
       if (user) {
-        const userDoc = doc(db, "users", user.uid); // استخدام user.uid بدلاً من user.email
+        const userDoc = doc(db, "users", user.uid); // استخدام user.uid بدل user.email
         const snap = await getDoc(userDoc);
         let inviteCode = '';
 
@@ -265,7 +265,7 @@
         }
 
         codeInput.value = inviteCode;
-        linkInput.value = `https://ramymohamed517.github.io/earnova-page?ic=${inviteCode}`; // رابط مخصص
+        linkInput.value = `https://ramymohamed517.github.io/earnova-page?ic=${inviteCode}`;
 
         const data = snap.exists() ? snap.data() : {};
         const c1 = data.level1Count || 0;
@@ -284,18 +284,11 @@
         totalPeople.innerHTML = `إجمالي الأشخاص<br>${c1 + c2 + c3}`;
         totalRewards.innerHTML = `إجمالي المكافآت<br>EGP ${r1 + r2 + r3}`;
 
-        // جلب عدد الزيارات (مثال افتراضي، تحتاج إلى إعداد مجموعة visits)
-        const visitsQuery = query(collection(db, "visits"), where("refCode", "==", inviteCode));
-        const visitsSnapshot = await getDocs(visitsQuery);
-        const visitsCount = visitsSnapshot.size;
-        document.getElementById("totalPeople").innerHTML += `<br>(زيارات: ${visitsCount})`;
-
-        // جلب عدد المسجلين وعرض قائمة المدعوين
-        const q = query(collection(db, "users"), where("invitedBy", "==", inviteCode));
-        const snapshot = await getDocs(q);
-        const refCount = snapshot.size;
+        // جلب بيانات المدعوين من invitedUsers
+        const invitedUsersRef = collection(db, "users", user.uid, "invitedUsers");
+        const invitedUsersSnap = await getDocs(invitedUsersRef);
         invitedUsersTable.innerHTML = "";
-        snapshot.forEach((doc) => {
+        invitedUsersSnap.forEach((doc) => {
           const invitedData = doc.data();
           const row = document.createElement("tr");
           row.innerHTML = `
@@ -304,16 +297,6 @@
             <td>${invitedData.purchaseDate ? new Date(invitedData.purchaseDate).toLocaleDateString('ar-EG') : '-'}</td>
           `;
           invitedUsersTable.appendChild(row);
-        });
-
-        // جلب بيانات المدعوين من invitedUsers (للمستويات)
-        const invitedUsersRef = collection(db, "users", user.uid, "invitedUsers");
-        const invitedUsersSnap = await getDocs(invitedUsersRef);
-        invitedUsersSnap.forEach((doc) => {
-          const invitedData = doc.data();
-          if (invitedData.invitedBy === inviteCode) {
-            // تحديث المستويات هنا إذا لزم الأمر (يمكن استخدام Cloud Functions لأتمتة ذلك)
-          }
         });
       } else {
         codeInput.value = "سجّل دخولك أولًا";
