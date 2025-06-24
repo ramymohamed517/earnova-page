@@ -414,13 +414,12 @@
       db.collection("users").doc(currentUserId).get().then((doc) => {
         if (doc.exists) {
           userBalance = doc.data().balance || 0;
+          document.getElementById("user-balance").textContent = userBalance.toFixed(2) + " ج.م";
         } else {
           userBalance = 0;
-          db.collection("users").doc(currentUserId).set({
-            balance: userBalance
-          });
+          db.collection("users").doc(currentUserId).set({ balance: userBalance });
+          document.getElementById("user-balance").textContent = userBalance.toFixed(2) + " ج.م";
         }
-        document.getElementById("user-balance").textContent = userBalance.toFixed(2) + " ج.م";
       }).catch((error) => {
         console.error("Error fetching balance:", error);
         userBalance = 0;
@@ -518,7 +517,7 @@
         updateUserBalance();
         updateProductCount();
         loadUserProducts();
-        disablePurchasedProducts(); // تعطيل أزرار المنتجات المشتراة
+        disablePurchasedProducts();
       } else {
         document.getElementById("loginAlert").style.display = "block";
         setTimeout(() => {
@@ -566,19 +565,17 @@
                 return;
               }
 
-              // جلب أحدث قيمة للرصيد من Firestore
+              // جلب الرصيد وإظهار النافذة
               db.collection("users").doc(currentUserId).get().then((doc) => {
                 userBalance = doc.data().balance || 0;
-
                 document.getElementById('modalProductName').textContent = selectedProduct.name;
                 document.getElementById('modalProductPrice').textContent = selectedProduct.price.toFixed(2);
                 document.getElementById('modalDailyProfit').textContent = selectedProduct.dailyProfit.toFixed(2);
                 document.getElementById('modalTotalProfit').textContent = selectedProduct.totalProfit.toFixed(2);
                 document.getElementById('modalCurrentBalance').textContent = userBalance.toFixed(2);
-
                 document.getElementById('purchaseModal').style.display = 'flex';
               }).catch((error) => {
-                console.error("Error fetching balance for modal:", error);
+                console.error("Error fetching balance:", error);
                 document.getElementById('insufficientBalanceAlert').style.display = 'block';
                 setTimeout(() => {
                   document.getElementById('insufficientBalanceAlert').style.display = 'none';
@@ -595,19 +592,15 @@
       document.getElementById('confirmPurchase').addEventListener('click', function() {
         if (!currentUserId || !selectedProduct) return;
 
-        // جلب الرصيد مرة أخرى للتأكد من القيمة الحالية
         db.collection("users").doc(currentUserId).get().then((doc) => {
           userBalance = doc.data().balance || 0;
 
           if (userBalance >= selectedProduct.price) {
-            // عملية الشراء ناجحة
             const newBalance = userBalance - selectedProduct.price;
 
-            // تحديث الرصيد في Firestore
             return db.collection("users").doc(currentUserId).update({
               balance: newBalance
             }).then(() => {
-              // إضافة المنتج للمستخدم مع lastProfitUpdate
               return db.collection("userProducts").add({
                 userId: currentUserId,
                 productId: selectedProduct.id,
@@ -617,25 +610,22 @@
                 dailyProfit: selectedProduct.dailyProfit,
                 daysRemaining: selectedProduct.days,
                 totalProfit: selectedProduct.totalProfit,
-                lastProfitUpdate: new Date().toISOString() // حقل جديد لتتبع آخر تحديث للربح
+                lastProfitUpdate: new Date().toISOString()
               }).then(() => {
-                // إغلاق النافذة وإظهار رسالة النجاح
                 document.getElementById('purchaseModal').style.display = 'none';
                 document.getElementById('successAlert').style.display = 'block';
                 setTimeout(() => {
                   document.getElementById('successAlert').style.display = 'none';
                 }, 3000);
 
-                // تحديث الرصيد المحلي وعرض المنتجات وعدد المنتجات
                 userBalance = newBalance;
                 document.getElementById("user-balance").textContent = userBalance.toFixed(2) + " ج.م";
                 loadUserProducts();
                 updateProductCount();
-                disablePurchasedProducts(); // تحديث حالة أزرار الشراء
+                disablePurchasedProducts();
               });
             });
           } else {
-            // الرصيد غير كافي
             document.getElementById('purchaseModal').style.display = 'none';
             document.getElementById('insufficientBalanceAlert').style.display = 'block';
             setTimeout(() => {
