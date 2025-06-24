@@ -10,21 +10,27 @@
   <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-auth-compat.js"></script>
 
   <script>
-const firebaseConfig = {
-  apiKey: "AIzaSyCmv3HQkT0PFg_66im4vSbna4oQu29dTkc",
-  authDomain: "earnovalogin.firebaseapp.com",
-  databaseURL: "https://earnovalogin-default-rtdb.firebaseio.com",
-  projectId: "earnovalogin",
-  storageBucket: "earnovalogin.firebasestorage.app",
-  messagingSenderId: "488267724180",
-  appId: "1:488267724180:web:b2a3376a94735bca6e8b81",
-  measurementId: "G-G550NREEB5"
-};
+    const firebaseConfig = {
+      apiKey: "AIzaSyCmv3HQkT0PFg_66im4vSbna4oQu29dTkc",
+      authDomain: "earnovalogin.firebaseapp.com",
+      databaseURL: "https://earnovalogin-default-rtdb.firebaseio.com",
+      projectId: "earnovalogin",
+      storageBucket: "earnovalogin.firebasestorage.app",
+      messagingSenderId: "488267724180",
+      appId: "1:488267724180:web:b2a3376a94735bca6e8b81",
+      measurementId: "G-G550NREEB5"
+    };
     firebase.initializeApp(firebaseConfig);
 
     firebase.auth().onAuthStateChanged(function(user) {
+      const loginMessage = document.getElementById('loginMessage');
+      const mainContent = document.getElementById('mainContent');
       if (!user) {
-        window.location.href = "login.html";
+        loginMessage.style.display = 'block';
+        mainContent.style.display = 'none';
+      } else {
+        loginMessage.style.display = 'none';
+        mainContent.style.display = 'block';
       }
     });
   </script>
@@ -83,7 +89,7 @@ const firebaseConfig = {
     }
 
     .card i {
-      font-size: 20px; /* ✅ حجم مناسب للهاتف */
+      font-size: 20px;
       color: #00e5ff;
       margin-bottom: 8px;
       text-shadow: 0 0 4px rgba(0, 229, 255, 0.6);
@@ -179,89 +185,103 @@ const firebaseConfig = {
         font-size: 12px;
       }
     }
+
+    #loginMessage {
+      display: none;
+      text-align: center;
+      padding: 20px;
+      background-color: rgba(255, 0, 0, 0.1);
+      border-radius: 15px;
+      margin: 20px;
+      color: #ff4444;
+      font-size: 18px;
+      box-shadow: 0 0 10px rgba(255, 0, 0, 0.2);
+    }
   </style>
 
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
 </head>
 <body>
+  <div id="loginMessage">يجب تسجيل الدخول أولاً</div>
+  <div id="mainContent">
+    <img src="Copilot_20250612_150923.png" alt="صورة ترحيبية" class="header-img" />
 
-  <img src="Copilot_20250612_150923.png" alt="صورة ترحيبية" class="header-img" />
+    <div class="main">
+      <div class="grid">
+        <a href="profit.html">
+          <div class="card">
+            <i class="fas fa-coins"></i>
+            <div class="icon-line"></div>
+            <h3>رصيدك</h3>
+            <p>عدد النقاط المكتسبة حتى الآن</p>
+          </div>
+        </a>
 
-  <div class="main">
-    <div class="grid">
-      <a href="profit.html">
-        <div class="card">
-          <i class="fas fa-coins"></i>
-          <div class="icon-line"></div>
-          <h3>رصيدك</h3>
-          <p>عدد النقاط المكتسبة حتى الآن</p>
-        </div>
-      </a>
+        <a href="page.html">
+          <div class="card">
+            <i class="fas fa-gift"></i>
+            <div class="icon-line"></div>
+            <h3>الهدايا</h3>
+            <p>اكمل المهام اليومية واربح</p>
+          </div>
+        </a>
 
-      <a href="page.html">
-        <div class="card">
-          <i class="fas fa-gift"></i>
-          <div class="icon-line"></div>
-          <h3>الهدايا</h3>
-          <p>اكمل المهام اليومية واربح</p>
-        </div>
-      </a>
+        <a href="nws.html">
+          <div class="card">
+            <i class="fas fa-info-circle"></i>
+            <div class="icon-line"></div>
+            <h3>عنّا</h3>
+            <p>معلومات حول تطبيقنا وفريقنا</p>
+          </div>
+        </a>
 
-      <a href="nws.html">
-        <div class="card">
-          <i class="fas fa-info-circle"></i>
-          <div class="icon-line"></div>
-          <h3>عنّا</h3>
-          <p>معلومات حول تطبيقنا وفريقنا</p>
-        </div>
-      </a>
+        <a href="place.html">
+          <div class="card">
+            <i class="fas fa-newspaper"></i>
+            <div class="icon-line"></div>
+            <h3>الأخبار</h3>
+            <p>آخر التحديثات والعروض</p>
+          </div>
+        </a>
 
-      <a href="place.html">
-        <div class="card">
-          <i class="fas fa-newspaper"></i>
-          <div class="icon-line"></div>
-          <h3>الأخبار</h3>
-          <p>آخر التحديثات والعروض</p>
-        </div>
-      </a>
-
-      <a href="invite.html">
-      <div class="card">
-        <i class="fas fa-users"></i>
-        <div class="icon-line"></div>
-        <h3>دعوة الأصدقاء</h3>
-        <p>شارك التطبيق واربح عند دعوة الأصدقاء</p>
+        <a href="invite.html">
+          <div class="card">
+            <i class="fas fa-users"></i>
+            <div class="icon-line"></div>
+            <h3>دعوة الأصدقاء</h3>
+            <p>شارك التطبيق واربح عند دعوة الأصدقاء</p>
+          </div>
+        </a>
       </div>
     </div>
-  </div>
 
-  <div class="bottom-nav">
-    <a href="index.html" class="nav-item active">
-      <i class="fas fa-home"></i>
-      الرئيسية
-    </a>
-    <a href="money.html" class="nav-item">
-      <i class="fas fa-coins"></i>
-      منتجات
-    </a>
-    <a href="page.html" class="nav-item">
-      <i class="fas fa-gift"></i>
-      الهدايا
-    </a>
-    <a href="account.html" class="nav-item">
-      <i class="fas fa-user-circle"></i>
-      حسابي
-    </a>
-    <a href="siting.html" class="nav-item">
-      <i class="fas fa-sliders-h"></i>
-      الإعدادات
-    </a>
-    <a href="support.html" class="nav-item">
-      <i class="fas fa-headset"></i>
-      الدعم
-    </a>
+    <div class="bottom-nav">
+      <a href="index.html" class="nav-item active">
+        <i class="fas fa-home"></i>
+        الرئيسية
+      </a>
+      <a href="money.html" class="nav-item">
+        <i class="fas fa-coins"></i>
+        منتجات
+      </a>
+      <a href="page.html" class="nav-item">
+        <i class="fas fa-gift"></i>
+        الهدايا
+      </a>
+      <a href="account.html" class="nav-item">
+        <i class="fas fa-user-circle"></i>
+        حسابي
+      </a>
+      <a href="siting.html" class="nav-item">
+        <i class="fas fa-sliders-h"></i>
+        الإعدادات
+      </a>
+      <a href="support.html" class="nav-item">
+        <i class="fas fa-headset"></i>
+        الدعم
+      </a>
+    </div>
   </div>
-
 </body>
 </html>
 
