@@ -48,6 +48,10 @@
       cursor: pointer;
     }
 
+    .copy-btn:hover {
+      background-color: #e0b800;
+    }
+
     .level-table {
       width: 100%;
       background-color: #1e1e1e;
@@ -131,6 +135,12 @@
       text-align: center;
       font-size: 14px;
     }
+
+    .status {
+      margin-top: 10px;
+      font-size: 14px;
+      color: lightgreen;
+    }
   </style>
 </head>
 <body>
@@ -145,6 +155,7 @@
       <h3>رابط الدعوة</h3>
       <input type="text" id="inviteLink" value="..." readonly>
       <button class="copy-btn" onclick="copyLink()">نسخ</button>
+      <div class="status" id="copyStatus"></div>
     </div>
 
     <div class="level-table">
@@ -234,35 +245,35 @@
     const totalPeople = document.getElementById("totalPeople");
     const totalRewards = document.getElementById("totalRewards");
     const invitedUsersTable = document.getElementById("invitedUsersTable");
+    const copyStatus = document.getElementById("copyStatus");
 
     onAuthStateChanged(auth, async (user) => {
       if (user) {
-        const userDoc = doc(db, "users", user.email);
+        const userDoc = doc(db, "users", user.uid); // استخدام user.uid بدلاً من user.email
         const snap = await getDoc(userDoc);
         let inviteCode = '';
 
         if (snap.exists()) {
           const data = snap.data();
-          inviteCode = data.inviteCode || generateInviteCode();
+          inviteCode = String(data.inviteCode || generateInviteCode());
           if (!data.inviteCode) {
-            // Save the new invite code to Firestore
             await setDoc(userDoc, { inviteCode }, { merge: true });
           }
         } else {
-          // Create a new user document if it doesn't exist
           inviteCode = generateInviteCode();
-          await setDoc(userDoc, { inviteCode });
+          await setDoc(userDoc, { inviteCode, level1Count: 0, level2Count: 0, level3Count: 0, level1Reward: 0, level2Reward: 0, level3Reward: 0 });
         }
 
         codeInput.value = inviteCode;
-        linkInput.value = `https://ramymohamed517.github.io/earnova-page?ic=${inviteCode}`;
+        linkInput.value = `https://ramymohamed517.github.io/earnova-page?ic=${inviteCode}`; // رابط مخصص
 
-        const c1 = snap.exists() ? snap.data().level1Count || 0 : 0;
-        const c2 = snap.exists() ? snap.data().level2Count || 0 : 0;
-        const c3 = snap.exists() ? snap.data().level3Count || 0 : 0;
-        const r1 = snap.exists() ? snap.data().level1Reward || 0 : 0;
-        const r2 = snap.exists() ? snap.data().level2Reward || 0 : 0;
-        const r3 = snap.exists() ? snap.data().level3Reward || 0 : 0;
+        const data = snap.exists() ? snap.data() : {};
+        const c1 = data.level1Count || 0;
+        const c2 = data.level2Count || 0;
+        const c3 = data.level3Count || 0;
+        const r1 = data.level1Reward || 0;
+        const r2 = data.level2Reward || 0;
+        const r3 = data.level3Reward || 0;
 
         lvl1Count.textContent = c1;
         lvl2Count.textContent = c2;
@@ -273,19 +284,36 @@
         totalPeople.innerHTML = `إجمالي الأشخاص<br>${c1 + c2 + c3}`;
         totalRewards.innerHTML = `إجمالي المكافآت<br>EGP ${r1 + r2 + r3}`;
 
-        // Fetch invited users
-        const invitedUsersRef = collection(db, "users", user.email, "invitedUsers");
-        const invitedUsersSnap = await getDocs(invitedUsersRef);
+        // جلب عدد الزيارات (مثال افتراضي، تحتاج إلى إعداد مجموعة visits)
+        const visitsQuery = query(collection(db, "visits"), where("refCode", "==", inviteCode));
+        const visitsSnapshot = await getDocs(visitsQuery);
+        const visitsCount = visitsSnapshot.size;
+        document.getElementById("totalPeople").innerHTML += `<br>(زيارات: ${visitsCount})`;
+
+        // جلب عدد المسجلين وعرض قائمة المدعوين
+        const q = query(collection(db, "users"), where("invitedBy", "==", inviteCode));
+        const snapshot = await getDocs(q);
+        const refCount = snapshot.size;
         invitedUsersTable.innerHTML = "";
-        invitedUsersSnap.forEach((doc) => {
+        snapshot.forEach((doc) => {
           const invitedData = doc.data();
           const row = document.createElement("tr");
           row.innerHTML = `
-            <td>${doc.id}</td>
+            <td>${invitedData.email || '-'}</td>
             <td>${invitedData.product || '-'}</td>
             <td>${invitedData.purchaseDate ? new Date(invitedData.purchaseDate).toLocaleDateString('ar-EG') : '-'}</td>
           `;
           invitedUsersTable.appendChild(row);
+        });
+
+        // جلب بيانات المدعوين من invitedUsers (للمستويات)
+        const invitedUsersRef = collection(db, "users", user.uid, "invitedUsers");
+        const invitedUsersSnap = await getDocs(invitedUsersRef);
+        invitedUsersSnap.forEach((doc) => {
+          const invitedData = doc.data();
+          if (invitedData.invitedBy === inviteCode) {
+            // تحديث المستويات هنا إذا لزم الأمر (يمكن استخدام Cloud Functions لأتمتة ذلك)
+          }
         });
       } else {
         codeInput.value = "سجّل دخولك أولًا";
@@ -302,15 +330,16 @@
       const code = document.getElementById("inviteCode");
       code.select();
       document.execCommand("copy");
-      alert("تم نسخ كود الدعوة!");
+      copyStatus.textContent = "✅ تم نسخ كود الدعوة!";
+      setTimeout(() => { copyStatus.textContent = ""; }, 3000);
     }
 
-    
     function copyLink() {
       const link = document.getElementById("inviteLink");
       link.select();
       document.execCommand("copy");
-      alert("تم نسخ رابط الدعوة!");
+      copyStatus.textContent = "✅ تم نسخ رابط الدعوة!";
+      setTimeout(() => { copyStatus.textContent = ""; }, 3000);
     }
   </script>
 </body>
