@@ -53,6 +53,19 @@
     #loginSection {
       margin-bottom: 20px;
     }
+    .deposit-item {
+      border: 1px solid #ddd;
+      padding: 10px;
+      margin: 10px 0;
+      border-radius: 5px;
+      background-color: #f9f9f9;
+    }
+    .pending {
+      background-color: #fff3cd;
+    }
+    .approved {
+      background-color: #d4edda;
+    }
   </style>
 </head>
 <body>
@@ -66,6 +79,8 @@
     
     <div id="adminPanel" style="display:none;">
       <h1>لوحة تحكم المشرف</h1>
+      
+      <h2>إدارة المستخدمين</h2>
       <input type="text" id="uid" placeholder="أدخل UID المستخدم" />
       <button onclick="searchUser()">بحث</button>
       <div id="loading">جاري البحث...</div>
@@ -82,13 +97,16 @@
 
         <button onclick="updateUser()">تحديث البيانات</button>
       </div>
+      
+      <h2>طلبات الإيداع</h2>
+      <div id="depositsList"></div>
     </div>
   </div>
 
   <!-- Firebase SDK -->
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
-    import { getFirestore, doc, getDoc, updateDoc } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+    import { getFirestore, doc, getDoc, updateDoc, collection, query, where, getDocs, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
     import { getAuth, signInWithEmailAndPassword, signOut } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
 
     const firebaseConfig = {
@@ -130,6 +148,7 @@
         document.getElementById("loginSection").style.display = "none";
         document.getElementById("adminPanel").style.display = "block";
         alert("تم تسجيل الدخول بنجاح كمسؤول");
+        loadPendingDeposits(); // تحميل طلبات الإيداع بعد تسجيل الدخول
       } catch (error) {
         console.error("خطأ في المصادقة:", error);
         alert("فشل تسجيل الدخول: " + error.message);
@@ -211,11 +230,83 @@
       }
     };
 
+    // تحميل طلبات الإيداع المعلقة
+    async function loadPendingDeposits() {
+      try {
+        const q = query(collection(db, "deposits"), where("status", "==", "pending"));
+        const querySnapshot = await getDocs(q);
+        
+        const depositsList = document.getElementById("depositsList");
+        depositsList.innerHTML = "";
+        
+        if (querySnapshot.empty) {
+          depositsList.innerHTML = "<p>لا توجد طلبات إيداع معلقة</p>";
+          return;
+        }
+        
+        querySnapshot.forEach((doc) => {
+          const deposit = doc.data();
+          const depositItem = document.createElement("div");
+          depositItem.className = `deposit-item ${deposit.status}`;
+          depositItem.innerHTML = `
+            <p><strong>المعرف:</strong> ${doc.id}</p>
+            <p><strong>المستخدم:</strong> ${deposit.userId}</p>
+            <p><strong>المبلغ:</strong> ${deposit.amount}</p>
+            <p><strong>طريقة الدفع:</strong> ${deposit.paymentMethod}</p>
+            <p><strong>تاريخ الطلب:</strong> ${new Date(deposit.createdAt?.seconds * 1000).toLocaleString()}</p>
+            <button onclick="approveDeposit('${doc.id}', '${deposit.userId}', ${deposit.amount})">موافقة</button>
+          `;
+          depositsList.appendChild(depositItem);
+        });
+      } catch (error) {
+        console.error("خطأ في تحميل طلبات الإيداع:", error);
+        alert("خطأ في تحميل طلبات الإيداع: " + error.message);
+      }
+    }
+
+    // الموافقة على الإيداع
+    window.approveDeposit = async function(depositId, userId, amount) {
+      try {
+        if (!auth.currentUser || auth.currentUser.uid !== ADMIN_UID) {
+          alert("يجب تسجيل الدخول كمسؤول أولاً");
+          return;
+        }
+        
+        if (!confirm('هل أنت متأكد من الموافقة على هذا الإيداع؟')) return;
+        
+        // تحديث حالة الإيداع
+        const depositRef = doc(db, "deposits", depositId);
+        await updateDoc(depositRef, {
+          status: 'approved',
+          approvedAt: serverTimestamp(),
+          approvedBy: auth.currentUser.uid
+        });
+        
+        // تحديث رصيد المستخدم
+        const userRef = doc(db, "users", userId);
+        const userSnap = await getDoc(userRef);
+        
+        if (userSnap.exists()) {
+          const currentBalance = userSnap.data().balance || 0;
+          await updateDoc(userRef, {
+            balance: currentBalance + amount
+          });
+        }
+        
+        alert('تمت الموافقة بنجاح');
+        loadPendingDeposits(); // إعادة تحميل القائمة بعد التحديث
+      } catch (error) {
+        console.error("حدث خطأ أثناء الموافقة:", error);
+        alert("حدث خطأ أثناء الموافقة: " + error.message);
+      }
+    };
+
     // التحقق من حالة تسجيل الدخول عند تحميل الصفحة
     auth.onAuthStateChanged((user) => {
       if (user && user.uid === ADMIN_UID) {
         document.getElementById("loginSection").style.display = "none";
         document.getElementById("adminPanel").style.display = "block";
+        loadPendingDeposits(); // تحميل طلبات الإيداع عند تسجيل الدخول
       }
     });
   </script>

@@ -77,6 +77,40 @@
       transform: none;
       box-shadow: none;
     }
+    
+    /* إضافة جديدة: قسم التليجرام */
+    .telegram-info {
+      background-color: rgba(0, 150, 136, 0.2);
+      border-radius: 15px;
+      padding: 20px;
+      margin-top: 30px;
+      text-align: center;
+      border: 1px solid #009688;
+    }
+    .telegram-info h3 {
+      color: #4db6ac;
+      margin-top: 0;
+    }
+    .telegram-link {
+      display: inline-block;
+      background-color: #0088cc;
+      color: white;
+      padding: 12px 25px;
+      border-radius: 30px;
+      text-decoration: none;
+      margin-top: 15px;
+      font-weight: bold;
+      transition: all 0.3s;
+    }
+    .telegram-link:hover {
+      background-color: #0077b5;
+      transform: translateY(-2px);
+      box-shadow: 0 5px 15px rgba(0, 136, 204, 0.4);
+    }
+    .telegram-link i {
+      margin-left: 8px;
+    }
+    
     .alert {
       position: fixed;
       top: 20px;
@@ -129,6 +163,17 @@
       <p>أدخل كود الهدية الذي حصلت عليه للحصول على مكافأتك</p>
       <input type="text" id="giftCodeInput" placeholder="أدخل كود الهدية هنا" />
       <button id="redeemButton" onclick="redeemCode()">استرداد الهدية</button>
+    </div>
+    
+    <!-- إضافة جديدة: قسم التليجرام -->
+    <div class="telegram-info">
+      <h3><i class="fab fa-telegram"></i> كيف تحصل على كود الهدية؟</h3>
+      <p>ستجد أكواد الهدايا الحصرية في قناتنا على التليجرام</p>
+      <p>انضم الآن واحصل على مكافآت مجانية!</p>
+      <a href="https://t.me/+fXByKeZaYZAxZjNk" class="telegram-link" target="_blank">
+        <span>انضم للقناة</span>
+        <i class="fab fa-telegram"></i>
+      </a>
     </div>
   </div>
 

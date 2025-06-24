@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>سجل الإيداعات</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: linear-gradient(45deg, #3a1c71, #d76d77, #ffaf7b);
+      background-size: 400% 400%;
+      animation: gradientBG 15s ease infinite;
+      color: #fff;
+    }
+
+    @keyframes gradientBG {
+      0% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+      100% { background-position: 0% 50%; }
+    }
+
+    .container {
+      max-width: 1000px;
+      margin: auto;
+      padding: 20px;
+    }
+
+    .header-image {
+      width: 100%;
+      max-height: 180px;
+      object-fit: cover;
+      border-bottom-left-radius: 30px;
+      border-bottom-right-radius: 30px;
+      box-shadow: 0 5px 20px rgba(0,0,0,0.3);
+    }
+
+    h1 {
+      text-align: center;
+      margin: 20px 0;
+      color: #fff;
+      text-shadow: 1px 1px 5px rgba(0,0,0,0.3);
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 12px;
+      overflow: hidden;
+      backdrop-filter: blur(5px);
+      box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+    }
+
+    th, td {
+      padding: 12px;
+      text-align: center;
+      color: white;
+      border-bottom: 1px solid rgba(255,255,255,0.2);
+    }
+
+    th {
+      background-color: rgba(0, 0, 0, 0.2);
+      font-weight: bold;
+    }
+
+    tr:hover {
+      background-color: rgba(255, 255, 255, 0.1);
+    }
+
+    @media(max-width: 768px) {
+      table, thead, tbody, th, td, tr {
+        display: block;
+      }
+
+      tr {
+        margin-bottom: 15px;
+        border-radius: 12px;
+        overflow: hidden;
+        background: rgba(255,255,255,0.05);
+      }
+
+      td {
+        text-align: right;
+        padding-right: 50%;
+        position: relative;
+      }
+
+      td::before {
+        content: attr(data-label);
+        position: absolute;
+        right: 10px;
+        font-weight: bold;
+        color: #fff;
+      }
+
+      th {
+        display: none;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <img src="https://via.placeholder.com/1000x180?text=سجل+الإيداعات" class="header-image" alt="صورة علوية">
+
+  <div class="container">
+    <h1>📜 سجل الإيداعات</h1>
+    <table id="depositTable">
+      <thead>
+        <tr>
+          <th>رقم المرسل</th>
+          <th>رقم المستلم</th>
+          <th>المبلغ</th>
+          <th>الحالة</th>
+          <th>التاريخ</th>
+        </tr>
+      </thead>
+      <tbody>
+        <!-- سيتم تعبئته من Firebase -->
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Firebase -->
+  <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-firestore-compat.js"></script>
+
+  <script>
+    const firebaseConfig = {
+      apiKey: "AIzaSyCmv3HQkT0PFg_66im4vSbna4oQu29dTkc",
+      authDomain: "earnovalogin.firebaseapp.com",
+      projectId: "earnovalogin",
+      storageBucket: "earnovalogin.appspot.com",
+      messagingSenderId: "488267724180",
+      appId: "1:488267724180:web:b2a3376a94735bca6e8b81"
+    };
+
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.firestore();
+
+    const tbody = document.querySelector('#depositTable tbody');
+
+    async function fetchDeposits() {
+      const snapshot = await db.collection("deposits").orderBy("timestamp", "desc").get();
+      snapshot.forEach(doc => {
+        const data = doc.data();
+        const row = document.createElement("tr");
+
+        const sender = document.createElement("td");
+        sender.setAttribute("data-label", "رقم المرسل");
+        sender.textContent = data.senderPhone || '---';
+
+        const receiver = document.createElement("td");
+        receiver.setAttribute("data-label", "رقم المستلم");
+        receiver.textContent = data.receiverPhone || '---';
+
+        const amount = document.createElement("td");
+        amount.setAttribute("data-label", "المبلغ");
+        amount.textContent = data.amount ? `${data.amount} EGP` : 'غير محدد';
+
+        const status = document.createElement("td");
+        status.setAttribute("data-label", "الحالة");
+        status.textContent = data.status === 'approved' ? 'تم بنجاح' : (data.status || '---');
+
+        const time = document.createElement("td");
+        time.setAttribute("data-label", "التاريخ");
+        const date = data.timestamp?.toDate?.();
+        time.textContent = date ? date.toLocaleString('ar-EG') : '---';
+
+        row.appendChild(sender);
+        row.appendChild(receiver);
+        row.appendChild(amount);
+        row.appendChild(status);
+        row.appendChild(time);
+        tbody.appendChild(row);
+      });
+    }
+
+    fetchDeposits();
+  </script>
+</body>
+</html>
+
