@@ -1,0 +1,359 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>هدايا EARNOVA المميزة</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: linear-gradient(135deg, #1a1a2e, #16213e);
+      color: white;
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+    .mystery-container {
+      padding: 20px;
+      text-align: center;
+    }
+    .header {
+      margin-bottom: 40px;
+      animation: fadeIn 1.5s ease;
+    }
+    .header h1 {
+      font-size: 2.5rem;
+      color: #f9ca24;
+      text-shadow: 0 0 10px rgba(249, 202, 36, 0.5);
+      margin-bottom: 15px;
+    }
+    .header p {
+      font-size: 1.2rem;
+      color: #a4b0be;
+      max-width: 800px;
+      margin: 0 auto;
+    }
+    .header .bonus-info {
+      color: #00ffcc;
+      font-weight: bold;
+      margin-top: 10px;
+    }
+    .gift-boxes {
+      display: flex;
+      justify-content: center;
+      flex-wrap: wrap;
+      gap: 30px;
+      margin-top: 50px;
+    }
+    .gift-box {
+      position: relative;
+      width: 150px;
+      height: 150px;
+      background: linear-gradient(145deg, #ff9ff3, #feca57);
+      border-radius: 10px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      box-shadow: 0 10px 20px rgba(0, 0, 0, 0.3);
+      overflow: hidden;
+    }
+    .gift-box:hover {
+      transform: translateY(-10px);
+      box-shadow: 0 15px 30px rgba(0, 0, 0, 0.4);
+    }
+    .gift-box::before {
+      content: '';
+      position: absolute;
+      top: -50%;
+      left: -50%;
+      width: 200%;
+      height: 200%;
+      background: linear-gradient(to bottom right, rgba(255, 255, 255, 0) 0%, rgba(255, 255, 255, 0.1) 50%, rgba(255, 255, 255, 0) 100%);
+      transform: rotate(45deg);
+      animation: shine 3s infinite;
+    }
+    .gift-box i {
+      font-size: 4rem;
+      color: rgba(0, 0, 0, 0.7);
+      transition: all 0.3s ease;
+    }
+    .gift-box:hover i {
+      transform: scale(1.1);
+    }
+    .social-links {
+      margin-top: 60px;
+      display: flex;
+      justify-content: center;
+      gap: 30px;
+      flex-wrap: wrap;
+    }
+    .social-link {
+      display: flex;
+      align-items: center;
+      background: rgba(255, 255, 255, 0.1);
+      padding: 12px 25px;
+      border-radius: 50px;
+      text-decoration: none;
+      color: white;
+      transition: all 0.3s ease;
+      backdrop-filter: blur(5px);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+    }
+    .social-link:hover {
+      background: rgba(255, 255, 255, 0.2);
+      transform: translateY(-5px);
+    }
+    .social-link i {
+      font-size: 1.8rem;
+      margin-left: 10px;
+    }
+    .whatsapp { color: #25D366; }
+    .telegram { color: #0088cc; }
+    .reveal-text {
+      margin-top: 60px;
+      font-size: 1.3rem;
+      color: #f9ca24;
+      opacity: 0;
+      transform: translateY(20px);
+      transition: all 0.8s ease;
+    }
+    .show-text {
+      opacity: 1;
+      transform: translateY(0);
+    }
+    .custom-alert {
+      margin-top: 20px;
+      background-color: #ff4757;
+      padding: 15px;
+      color: white;
+      border-radius: 10px;
+      font-weight: bold;
+      display: inline-block;
+      animation: fadeIn 0.5s ease;
+    }
+    .login-btn {
+      background: linear-gradient(145deg, #00b894, #00cec9);
+      padding: 12px 25px;
+      border-radius: 50px;
+      color: white;
+      font-weight: bold;
+      border: none;
+      cursor: pointer;
+      margin-top: 20px;
+      font-size: 1rem;
+      transition: all 0.3s ease;
+    }
+    .login-btn:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 5px 15px rgba(0, 184, 148, 0.4);
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(-20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    @keyframes shine {
+      0% { left: -100%; }
+      20% { left: 100%; }
+      100% { left: 100%; }
+    }
+    @media (max-width: 768px) {
+      .header h1 { font-size: 2rem; }
+      .header p { font-size: 1rem; }
+      .gift-box { width: 120px; height: 120px; }
+      .gift-box i { font-size: 3rem; }
+    }
+  </style>
+</head>
+<body>
+  <div class="mystery-container">
+    <div class="header">
+      <h1>🎁 هدايا EARNOVA السرية</h1>
+      <p>اختر أحد الصناديق لاكتشاف هديتك المميزة!</p>
+      <p class="bonus-info">💰 هناك مكافآت تصل إلى 100 جنيه!</p>
+      <button id="loginBtn" class="login-btn" style="display: none;">تسجيل الدخول</button>
+    </div>
+    <div class="gift-boxes">
+      <div class="gift-box" onclick="revealMessage('🎉 ربحت 1 جنيه!')">
+        <i class="fas fa-gift"></i>
+      </div>
+      <div class="gift-box" onclick="revealMessage('🎉 ربحت 5 جنيه!')">
+        <i class="fas fa-gift"></i>
+      </div>
+      <div class="gift-box" onclick="revealMessage('🎉 ربحت 10 جنيه!')">
+        <i class="fas fa-gift"></i>
+      </div>
+    </div>
+    <div class="reveal-text" id="secretMessage">
+      <p>لحصول على هدايانا الحصرية، تابعنا على منصات التواصل الاجتماعي!</p>
+    </div>
+    <div id="alertBox"></div>
+    <div class="social-links">
+      <a href="https://wa.me/yournumber" class="social-link whatsapp-link" target="_blank">
+        <i class="fab fa-whatsapp whatsapp"></i>
+        <span>واتساب</span>
+      </a>
+      <a href="https://t.me/+fXByKeZaYZAxZjNk" class="social-link telegram-link" target="_blank">
+        <i class="fab fa-telegram telegram"></i>
+        <span>تلجرام</span>
+      </a>
+    </div>
+  </div>
+ <script>
+  // تهيئة Firebase
+  const firebaseConfig = {
+    apiKey: "AIzaSyCmv3HQkT0PFg_66im4vSbna4oQu29dTkc",
+    authDomain: "earnovalogin.firebaseapp.com",
+    databaseURL: "https://earnovalogin-default-rtdb.firebaseio.com",
+    projectId: "earnovalogin",
+    storageBucket: "earnovalogin.appspot.com",
+    messagingSenderId: "488267724180",
+    appId: "1:488267724180:web:b2a3376a94735bca6e8b81"
+  };
+
+  // Initialize Firebase
+  try {
+    const app = firebase.initializeApp(firebaseConfig);
+    const db = firebase.firestore();
+    const auth = firebase.auth();
+    console.log("Firebase initialized successfully");
+  } catch (error) {
+    console.error("Firebase initialization error:", error);
+    showCustomAlert("خطأ في الاتصال بالخادم. يرجى تحديث الصفحة.");
+  }
+
+  let hasClicked = false;
+
+  // دالة تسجيل الدخول
+  function loginUser() {
+    // هنا يجب استبدالها بطريقة تسجيل الدخول الفعلية الخاصة بك
+    // هذا مثال باستخدام تسجيل الدخول المجهول
+    auth.signInAnonymously()
+      .then(() => {
+        showCustomAlert("تم تسجيل الدخول بنجاح! يمكنك الآن اختيار هديتك");
+      })
+      .catch(error => {
+        console.error("Login error:", error);
+        showCustomAlert("فشل تسجيل الدخول: " + error.message);
+      });
+  }
+
+  // دالة فتح الهدية
+  async function revealMessage(text) {
+    try {
+      // التحقق من اتصال Firebase
+      if (!firebase.apps.length) {
+        showCustomAlert("حدث خطأ في الاتصال. يرجى تحديث الصفحة.");
+        return;
+      }
+
+      const user = auth.currentUser;
+      
+      if (!user) {
+        showCustomAlert("يجب تسجيل الدخول أولاً. الرجاء تسجيل الدخول ثم المحاولة مرة أخرى.");
+        document.getElementById('loginBtn').style.display = 'inline-block';
+        return;
+      }
+
+      const userId = user.uid;
+      const docRef = db.collection("giftOpened").doc(userId);
+      
+      // التحقق من وجود وثيقة مسبقاً
+      const docSnap = await docRef.get();
+      
+      if (docSnap.exists()) {
+        showCustomAlert("لقد حصلت على هديتك بالفعل! يمكنك الحصول على هدية واحدة فقط لكل حساب.");
+        return;
+      }
+
+      if (hasClicked) {
+        showCustomAlert("لقد قمت باختيار هدية بالفعل!");
+        return;
+      }
+
+      hasClicked = true;
+
+      // حفظ البيانات في Firestore
+      await docRef.set({
+        openedAt: firebase.firestore.FieldValue.serverTimestamp(),
+        reward: text,
+        userId: userId,
+        email: user.email || "غير معروف"
+      });
+
+      // عرض رسالة النجاح
+      const message = document.getElementById('secretMessage');
+      message.innerHTML = `
+        <p>${text}</p>
+        <p style="color:#0f0;font-weight:bold;margin-top:10px;">تهانينا! انضم إلى قناتنا على التليجرام للحصول على الهدية!</p>
+      `;
+      message.classList.add('show-text');
+
+      // تشغيل صوت النجاح
+      const audio = new Audio('https://assets.mixkit.co/sfx/preview/mixkit-achievement-bell-600.mp3');
+      audio.play().catch(e => console.log("تعذر تشغيل الصوت: ", e));
+
+      // تعطيل جميع الصناديق بعد الاختيار
+      const boxes = document.querySelectorAll('.gift-box');
+      boxes.forEach(box => {
+        box.style.pointerEvents = "none";
+        box.style.background = 'linear-gradient(145deg, #5f27cd, #341f97)';
+        box.querySelector('i').style.color = 'white';
+      });
+
+    } catch (error) {
+      console.error("حدث خطأ: ", error);
+      showCustomAlert("حدث خطأ أثناء محاولة فتح الهدية: " + error.message);
+      hasClicked = false;
+    }
+  }
+
+  // دالة عرض التنبيهات
+  function showCustomAlert(message) {
+    const alertBox = document.getElementById("alertBox");
+    alertBox.innerHTML = `<div class="custom-alert">${message}</div>`;
+    
+    setTimeout(() => {
+      alertBox.innerHTML = '';
+    }, 5000);
+  }
+
+  // إضافة تأثيرات للصناديق
+  const boxes = document.querySelectorAll('.gift-box');
+  boxes.forEach(box => {
+    box.addEventListener('mouseover', () => {
+      box.style.transform = `rotate(${Math.random() * 10 - 5}deg)`;
+    });
+    box.addEventListener('mouseout', () => {
+      box.style.transform = '';
+    });
+  });
+
+  // مراقبة حالة المصادقة
+  auth.onAuthStateChanged(user => {
+    const loginBtn = document.getElementById('loginBtn');
+    if (user) {
+      loginBtn.style.display = 'none';
+      console.log("User logged in:", user.uid);
+    } else {
+      loginBtn.style.display = 'inline-block';
+      loginBtn.onclick = loginUser;
+    }
+  });
+</script>
+</body>
+</html>
+
+
+
+
+
