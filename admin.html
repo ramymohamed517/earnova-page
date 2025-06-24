@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>لوحة تحكم المشرف</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f1f1f1;
+      padding: 20px;
+    }
+    .container {
+      max-width: 600px;
+      margin: auto;
+      background-color: #fff;
+      padding: 20px;
+      border-radius: 10px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    }
+    h1 {
+      text-align: center;
+      color: #333;
+    }
+    input, button {
+      width: 100%;
+      padding: 10px;
+      margin-top: 10px;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+    }
+    button {
+      background-color: #00c292;
+      color: white;
+      border: none;
+      cursor: pointer;
+    }
+    button:hover {
+      background-color: #00a87b;
+    }
+    .info {
+      margin-top: 20px;
+      display: none;
+    }
+    label {
+      margin-top: 10px;
+      display: block;
+    }
+    #loading {
+      text-align: center;
+      display: none;
+    }
+    #loginSection {
+      margin-bottom: 20px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div id="loginSection">
+      <h1>تسجيل دخول المشرف</h1>
+      <input type="email" id="adminEmail" placeholder="البريد الإلكتروني للمشرف" />
+      <input type="password" id="adminPassword" placeholder="كلمة المرور" />
+      <button onclick="adminLogin()">تسجيل الدخول</button>
+    </div>
+    
+    <div id="adminPanel" style="display:none;">
+      <h1>لوحة تحكم المشرف</h1>
+      <input type="text" id="uid" placeholder="أدخل UID المستخدم" />
+      <button onclick="searchUser()">بحث</button>
+      <div id="loading">جاري البحث...</div>
+
+      <div class="info" id="userInfo">
+        <label>الاسم:</label>
+        <input type="text" id="name" disabled />
+        <label>الرصيد:</label>
+        <input type="number" id="balance" />
+        <label>عدد الدعوات:</label>
+        <input type="number" id="invitations" />
+        <label>عدد المنتجات:</label>
+        <input type="number" id="products" />
+
+        <button onclick="updateUser()">تحديث البيانات</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Firebase SDK -->
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+    import { getFirestore, doc, getDoc, updateDoc } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+    import { getAuth, signInWithEmailAndPassword, signOut } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyCmv3HQkT0PFg_66im4vSbna4oQu29dTkc",
+      authDomain: "earnovalogin.firebaseapp.com",
+      databaseURL: "https://earnovalogin-default-rtdb.firebaseio.com",
+      projectId: "earnovalogin",
+      storageBucket: "earnovalogin.appspot.com",
+      messagingSenderId: "488267724180",
+      appId: "1:488267724180:web:b2a3376a94735bca6e8b81",
+      measurementId: "G-G550NREEB5"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+    const auth = getAuth(app);
+    
+    let currentDocRef = null;
+    const ADMIN_UID = "cv1YaLEHLkTr1tTRDhTf43Dbcgm2"; // UID الخاص بك
+
+    // تسجيل دخول المشرف
+    window.adminLogin = async function() {
+      try {
+        const email = document.getElementById("adminEmail").value.trim();
+        const password = document.getElementById("adminPassword").value.trim();
+        
+        if (!email || !password) {
+          throw new Error("يجب إدخال البريد وكلمة المرور");
+        }
+        
+        const userCredential = await signInWithEmailAndPassword(auth, email, password);
+        
+        // التحقق من أن المستخدم هو المشرف المحدد
+        if (userCredential.user.uid !== ADMIN_UID) {
+          await signOut(auth);
+          throw new Error("ليس لديك صلاحيات المشرف");
+        }
+        
+        document.getElementById("loginSection").style.display = "none";
+        document.getElementById("adminPanel").style.display = "block";
+        alert("تم تسجيل الدخول بنجاح كمسؤول");
+      } catch (error) {
+        console.error("خطأ في المصادقة:", error);
+        alert("فشل تسجيل الدخول: " + error.message);
+      }
+    };
+
+    // بحث عن المستخدم
+    window.searchUser = async function() {
+      try {
+        if (!auth.currentUser || auth.currentUser.uid !== ADMIN_UID) {
+          alert("يجب تسجيل الدخول كمسؤول أولاً");
+          return;
+        }
+        
+        const uid = document.getElementById("uid").value.trim();
+        if (!uid) {
+          alert("الرجاء إدخال UID");
+          return;
+        }
+
+        document.getElementById("loading").style.display = "block";
+        document.getElementById("userInfo").style.display = "none";
+        
+        console.log("جاري البحث عن المستخدم:", uid);
+        const userRef = doc(db, "users", uid);
+        const userSnap = await getDoc(userRef);
+
+        if (userSnap.exists()) {
+          console.log("تم العثور على المستخدم:", userSnap.data());
+          const data = userSnap.data();
+          currentDocRef = userRef;
+
+          document.getElementById("userInfo").style.display = "block";
+          document.getElementById("name").value = data.name || "غير معروف";
+          document.getElementById("balance").value = data.balance || 0;
+          document.getElementById("invitations").value = data.invites || 0;
+          document.getElementById("products").value = data.products || 0;
+        } else {
+          alert("❌ لم يتم العثور على المستخدم.");
+          console.log("المستخدم غير موجود");
+        }
+      } catch (error) {
+        console.error("حدث خطأ أثناء البحث:", error);
+        alert("حدث خطأ أثناء البحث: " + error.message);
+      } finally {
+        document.getElementById("loading").style.display = "none";
+      }
+    };
+
+    // تحديث بيانات المستخدم
+    window.updateUser = async function() {
+      try {
+        if (!auth.currentUser || auth.currentUser.uid !== ADMIN_UID) {
+          alert("يجب تسجيل الدخول كمسؤول أولاً");
+          return;
+        }
+        
+        if (!currentDocRef) {
+          alert("لا يوجد مستخدم محدد للتحديث");
+          return;
+        }
+
+        const balance = parseFloat(document.getElementById("balance").value);
+        const invites = parseInt(document.getElementById("invitations").value);
+        const products = parseInt(document.getElementById("products").value);
+
+        console.log("جاري تحديث البيانات...");
+        await updateDoc(currentDocRef, {
+          balance: isNaN(balance) ? 0 : balance,
+          invites: isNaN(invites) ? 0 : invites,
+          products: isNaN(products) ? 0 : products
+        });
+
+        alert("✅ تم تحديث البيانات بنجاح");
+        console.log("تم تحديث البيانات بنجاح");
+      } catch (error) {
+        console.error("حدث خطأ أثناء التحديث:", error);
+        alert("حدث خطأ أثناء التحديث: " + error.message);
+      }
+    };
+
+    // التحقق من حالة تسجيل الدخول عند تحميل الصفحة
+    auth.onAuthStateChanged((user) => {
+      if (user && user.uid === ADMIN_UID) {
+        document.getElementById("loginSection").style.display = "none";
+        document.getElementById("adminPanel").style.display = "block";
+      }
+    });
+  </script>
+</body>
+</html>
+

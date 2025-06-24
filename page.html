@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <title>صفحة المهام والمكافآت</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <style>
+    body {
+      background: linear-gradient(to right, #1a1a1a, #2c3e50);
+      font-family: 'Tajawal', sans-serif;
+      color: white;
+      padding: 20px;
+      margin: 0;
+    }
+    h1 {
+      text-align: center;
+      color: #f1c40f;
+    }
+    .section {
+      margin: 20px 0;
+      padding: 20px;
+      background-color: rgba(255,255,255,0.05);
+      border-radius: 15px;
+      box-shadow: 0 0 10px rgba(255, 215, 0, 0.3);
+    }
+    .task {
+      padding: 12px 15px;
+      margin-bottom: 12px;
+      border: 1px solid #f39c12;
+      border-radius: 10px;
+      background-color: rgba(255,255,255,0.1);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .task span {
+      max-width: 75%;
+      word-wrap: break-word;
+    }
+    button {
+      background-color: #f39c12;
+      border: none;
+      color: black;
+      padding: 8px 14px;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: 0.3s;
+      font-weight: bold;
+    }
+    button:hover {
+      background-color: #e67e22;
+    }
+    .contact {
+      margin-top: 40px;
+      background-color: rgba(255,255,255,0.1);
+      padding: 15px;
+      border-radius: 15px;
+      text-align: center;
+      font-size: 1.1em;
+      color: #ffd54f;
+      box-shadow: 0 0 12px rgba(255, 213, 79, 0.6);
+    }
+    .affiliate-section {
+      background-color: rgba(0, 229, 255, 0.15);
+      border: 1px solid #00e5ff;
+      padding: 15px;
+      border-radius: 15px;
+      margin-top: 30px;
+      color: #00e5ff;
+    }
+    .affiliate-link {
+      background-color: #000000aa;
+      padding: 10px;
+      border-radius: 10px;
+      font-size: 0.95em;
+      user-select: all;
+      margin-top: 10px;
+      word-break: break-word;
+    }
+    .bottom-nav {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      width: 100%;
+      background-color: #1f1f1f;
+      display: flex;
+      justify-content: space-around;
+      padding: 10px 0;
+      box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.5);
+      z-index: 100;
+    }
+    .bottom-nav button {
+      background: none;
+      border: none;
+      color: #f1c40f;
+      font-size: 16px;
+      font-weight: bold;
+      cursor: pointer;
+    }
+    .bottom-nav button:hover {
+      color: #ffffff;
+    }
+    @media (max-width: 600px) {
+      body {
+        padding-bottom: 70px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <h1>مهام المكافآت اليومية</h1>
+
+  <div class="section">
+    <h2>مهام الانضمام إلى قنوات تلجرام</h2>
+    <div class="task">
+      <span>انضم إلى قناة تلجرام - 0.5 سنت</span>
+      <button onclick="joinTelegram('https://t.me/+nPbdNUQm21UwMzY0')">انضم الآن</button>
+    </div>
+    <div class="task">
+      <span>انضم إلى قناة تلجرام - 0.5 سنت</span>
+      <button onclick="joinTelegram('https://t.me/+mbHlaogqNZ0zNzc0')">انضم الآن</button>
+    </div>
+    <div class="task">
+      <span>انضم إلى قناة تلجرام - 0.5 سنت</span>
+      <button onclick="joinTelegram('https://t.me/support_channel')">انضم الآن</button>
+    </div>
+  </div>
+
+  <div class="section">
+    <h2>مهام مشاهدة الإعلانات</h2>
+    <div class="task">
+      <span>شاهد إعلان فيديو واحصل على 0.3 سنت</span>
+      <button onclick="watchAd()">شاهد الإعلان</button>
+    </div>
+    <div class="task">
+      <span>شاهد إعلان ترويجي واحصل على 0.5 سنت</span>
+      <button onclick="watchAd()">شاهد الإعلان</button>
+    </div>
+  </div>
+
+  <div class="section affiliate-section">
+    <h2>التسويق بالعمولة</h2>
+    <p>شارك رابط دعوتك مع أصدقائك واحصل على عمولة عند انضمامهم أو قيامهم بالمهام.</p>
+    <p>رابط الدعوة الخاص بك:</p>
+    <div id="affiliateLink" class="affiliate-link">جارٍ التحميل...</div>
+    <button onclick="copyAffiliateLink()">نسخ رابط الدعوة</button>
+  </div>
+
+  <div class="contact">
+    <p>هل تريد عرض إعلان أو منتجاتك هنا؟</p>
+    <p>تواصل معنا عبر : <a href="https://t.me/marawan7557" target="_blank" style="color:#ffd54f;">@marawan7557</a></p>
+  </div>
+
+  <!-- شريط التنقل السفلي -->
+  <div class="bottom-nav">
+    <button onclick="goTo('profit.html')">💰 الرصيد</button>
+    <button onclick="goTo('account.html')">👤 حسابك</button>
+    <button onclick="goTo('invite.html')">📨 الدعوة</button>
+    <button onclick="goTo('siting.html')">⚙️ الإعدادات</button>
+  </div>
+
+  <!-- تحميل Firebase SDK من CDN بدون استخدام type="module" -->
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js"></script>
+
+  <script>
+    // إعدادات Firebase
+    const firebaseConfig = {
+      apiKey: "AIzaSyCmv3HQkT0PFg_66im4vSbna4oQu29dTkc",
+      authDomain: "earnovalogin.firebaseapp.com",
+      projectId: "earnovalogin",
+      storageBucket: "earnovalogin.firebasestorage.app",
+      messagingSenderId: "488267724180",
+      appId: "1:488267724180:web:b2a3376a94735bca6e8b81",
+      measurementId: "G-G550NREEB5"
+    };
+
+    // تهيئة Firebase
+    const app = firebase.initializeApp(firebaseConfig);
+    const auth = firebase.auth();
+
+    // مراقبة حالة المستخدم
+    auth.onAuthStateChanged(user => {
+      if (!user) {
+        window.location.href = 'login.html';
+      } else {
+        const inviteLink = `https://example.com/signup?ref=${user.uid}`;
+        document.getElementById('affiliateLink').textContent = inviteLink;
+      }
+    });
+
+    // دوال التفاعل
+    function joinTelegram(link) {
+      window.open(link, '_blank');
+      alert('شكراً لانضمامك! تم إضافة 0.5 سنت إلى حسابك.');
+    }
+
+    function watchAd() {
+      alert('شاهد الإعلان كاملاً للحصول على مكافأتك.');
+      alert('تم منحك 0.3 سنت بعد مشاهدة الإعلان.');
+    }
+
+    function copyAffiliateLink() {
+      const linkText = document.getElementById('affiliateLink').textContent;
+      navigator.clipboard.writeText(linkText).then(() => {
+        alert('تم نسخ رابط الدعوة إلى الحافظة!');
+      }).catch(() => {
+        alert('فشل نسخ الرابط. يرجى نسخه يدوياً.');
+      });
+    }
+
+    function goTo(page) {
+      window.location.href = page;
+    }
+  </script>
+</body>
+</html>

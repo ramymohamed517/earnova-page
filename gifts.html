@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <title>نظام كوبونات الهدايا</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+    body {
+      margin: 0;
+      padding: 0;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: linear-gradient(to bottom, #0f2027, #203a43, #2c5364);
+      color: white;
+      overflow-x: hidden;
+      padding-bottom: 70px;
+    }
+    .container {
+      padding: 30px 15px;
+      min-height: 100vh;
+      position: relative;
+      max-width: 800px;
+      margin: 0 auto;
+    }
+    .gift-box {
+      background-color: rgba(255, 255, 255, 0.1);
+      border-radius: 15px;
+      padding: 25px;
+      text-align: center;
+      margin-bottom: 20px;
+      box-shadow: 0 0 20px rgba(0, 229, 255, 0.2);
+    }
+    .gift-box h2 {
+      margin: 0 0 20px 0;
+      font-size: 28px;
+      color: #00ffc8;
+    }
+    .gift-box input {
+      width: 100%;
+      padding: 15px;
+      font-size: 18px;
+      border: 2px solid #00e5ff;
+      border-radius: 10px;
+      background-color: rgba(255, 255, 255, 0.9);
+      color: #000;
+      text-align: center;
+      margin-bottom: 20px;
+      transition: all 0.3s;
+    }
+    .gift-box input:focus {
+      outline: none;
+      box-shadow: 0 0 15px rgba(0, 229, 255, 0.7);
+    }
+    .gift-box button {
+      background-color: #00e5ff;
+      color: #000;
+      border: none;
+      border-radius: 10px;
+      padding: 15px 30px;
+      font-size: 18px;
+      font-weight: bold;
+      cursor: pointer;
+      transition: all 0.3s;
+      width: 100%;
+      margin-top: 10px;
+    }
+    .gift-box button:hover {
+      background-color: #00bcd4;
+      transform: translateY(-3px);
+      box-shadow: 0 8px 20px rgba(0, 229, 255, 0.5);
+    }
+    .gift-box button:disabled {
+      background-color: #666;
+      cursor: not-allowed;
+      transform: none;
+      box-shadow: none;
+    }
+    .alert {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      padding: 15px 25px;
+      background-color: #4CAF50;
+      color: white;
+      border-radius: 10px;
+      z-index: 1001;
+      display: none;
+      animation: slideIn 0.5s, fadeOut 0.5s 2.5s;
+      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+      max-width: 90%;
+    }
+    .alert.error {
+      background-color: #e53935;
+    }
+    @keyframes slideIn {
+      from {right: -300px; opacity: 0;}
+      to {right: 20px; opacity: 1;}
+    }
+    @keyframes fadeOut {
+      from {opacity: 1;}
+      to {opacity: 0;}
+    }
+    @media (max-width: 600px) {
+      .container {
+        padding: 20px 10px;
+      }
+      .gift-box {
+        padding: 20px 15px;
+      }
+      .gift-box h2 {
+        font-size: 24px;
+      }
+      .gift-box input, 
+      .gift-box button {
+        padding: 12px;
+        font-size: 16px;
+      }
+    }
+  </style>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+</head>
+<body>
+
+  <div class="container">
+    <div class="gift-box">
+      <h2><i class="fas fa-gift"></i> استرداد كوبون الهدية</h2>
+      <p>أدخل كود الهدية الذي حصلت عليه للحصول على مكافأتك</p>
+      <input type="text" id="giftCodeInput" placeholder="أدخل كود الهدية هنا" />
+      <button id="redeemButton" onclick="redeemCode()">استرداد الهدية</button>
+    </div>
+  </div>
+
+  <div id="alertBox" class="alert"></div>
+
+  <!-- Firebase SDK -->
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+    import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+    import { getFirestore, doc, getDoc, updateDoc, increment, setDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyCmv3HQkT0PFg_66im4vSbna4oQu29dTkc",
+      authDomain: "earnovalogin.firebaseapp.com",
+      projectId: "earnovalogin",
+      storageBucket: "earnovalogin.appspot.com",
+      messagingSenderId: "488267724180",
+      appId: "1:488267724180:web:b2a3376a94735bca6e8b81"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getFirestore(app);
+
+    const giftCodeInput = document.getElementById("giftCodeInput");
+    const alertBox = document.getElementById("alertBox");
+    const redeemButton = document.getElementById("redeemButton");
+
+    // فحص حالة تسجيل الدخول
+    onAuthStateChanged(auth, (user) => {
+      if (!user) {
+        showAlert("يجب تسجيل الدخول أولاً لاسترداد الهدايا", "error");
+        giftCodeInput.disabled = true;
+        redeemButton.disabled = true;
+      } else {
+        giftCodeInput.disabled = false;
+        redeemButton.disabled = false;
+      }
+    });
+
+    async function redeemCode() {
+      const code = giftCodeInput.value.trim();
+      if (!code) {
+        showAlert("يرجى إدخال كود الهدية", "error");
+        return;
+      }
+
+      try {
+        const user = auth.currentUser;
+        if (!user) {
+          showAlert("يجب تسجيل الدخول أولاً", "error");
+          return;
+        }
+
+        // تعطيل الزر أثناء المعالجة
+        redeemButton.disabled = true;
+        redeemButton.textContent = "جاري التحقق...";
+
+        const codeRef = doc(db, "giftCodes", code);
+        const codeSnap = await getDoc(codeRef);
+
+        if (!codeSnap.exists()) {
+          showAlert("كود الهدية غير صحيح", "error");
+          redeemButton.disabled = false;
+          redeemButton.textContent = "استرداد الهدية";
+          return;
+        }
+
+        const codeData = codeSnap.data();
+
+        // التحقق من صلاحية الكود
+        if (codeData.expiryDate && new Date() > codeData.expiryDate.toDate()) {
+          showAlert("انتهت صلاحية كود الهدية", "error");
+          redeemButton.disabled = false;
+          redeemButton.textContent = "استرداد الهدية";
+          return;
+        }
+
+        if (codeData.isUsed) {
+          showAlert("تم استخدام كود الهدية مسبقاً", "error");
+          redeemButton.disabled = false;
+          redeemButton.textContent = "استرداد الهدية";
+          return;
+        }
+
+        // منح المكافأة للمستخدم
+        const userRef = doc(db, "users", user.uid);
+        const transactionRef = doc(db, "users", user.uid, "transactions", `gift_${code}_${Date.now()}`);
+
+        await Promise.all([
+          updateDoc(codeRef, {
+            isUsed: true,
+            usedBy: user.uid,
+            usedAt: serverTimestamp()
+          }),
+          updateDoc(userRef, {
+            balance: increment(codeData.amount),
+            lastGiftRedeemed: serverTimestamp()
+          }),
+          setDoc(transactionRef, {
+            type: "كود هدية",
+            amount: codeData.amount,
+            date: serverTimestamp(),
+            code: code,
+            userId: user.uid
+          })
+        ]);
+
+        showAlert(`مبروك! لقد حصلت على ${codeData.amount} نقطة`, "success");
+        giftCodeInput.value = "";
+        redeemButton.textContent = "تم الاسترداد بنجاح";
+        setTimeout(() => {
+          redeemButton.textContent = "استرداد الهدية";
+          redeemButton.disabled = false;
+        }, 2000);
+
+      } catch (error) {
+        console.error("Error:", error);
+        showAlert("حدث خطأ أثناء استرداد الهدية", "error");
+        redeemButton.disabled = false;
+        redeemButton.textContent = "استرداد الهدية";
+      }
+    }
+
+    function showAlert(message, type) {
+      alertBox.textContent = message;
+      alertBox.className = `alert ${type === "error" ? "error" : ""}`;
+      alertBox.style.display = "block";
+      setTimeout(() => {
+        alertBox.style.display = "none";
+      }, 3000);
+    }
+
+    // نسخ الكود عند النقر على الحقل
+    giftCodeInput.addEventListener('click', function() {
+      this.select();
+    });
+
+    window.redeemCode = redeemCode;
+  </script>
+</body>
+</html>

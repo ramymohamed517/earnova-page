@@ -1,0 +1,306 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <title>إنشاء حساب جديد</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: linear-gradient(-45deg, #0f2027, #203a43, #2c5364, #000000);
+      background-size: 400% 400%;
+      animation: gradientBG 15s ease infinite;
+      height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+    }
+
+    @keyframes gradientBG {
+      0% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+      100% { background-position: 0% 50%; }
+    }
+
+    .container {
+      background: rgba(255, 255, 255, 0.1);
+      backdrop-filter: blur(12px);
+      padding: 6vw 5vw 5vw 5vw;
+      border-radius: 15px;
+      box-shadow: 0 0 25px rgba(0, 229, 255, 0.5);
+      width: 90%;
+      max-width: 400px;
+      text-align: center;
+      box-sizing: border-box;
+    }
+
+    .header-image {
+      width: 100%;
+      height: auto;
+      max-height: 160px;
+      object-fit: cover;
+      border-radius: 20px;
+      margin-bottom: 18px;
+      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+    }
+
+    h2 {
+      margin-bottom: 18px;
+      color: #00e5ff;
+      font-size: 6vw;
+    }
+
+    input {
+      width: 100%;
+      padding: 14px;
+      margin-bottom: 14px;
+      border-radius: 10px;
+      border: none;
+      background-color: rgba(255,255,255,0.2);
+      color: white;
+      font-size: 4.5vw;
+      outline: none;
+      box-sizing: border-box;
+      transition: box-shadow 0.3s ease;
+    }
+
+    input::placeholder {
+      color: #ddd;
+      font-size: 4vw;
+    }
+
+    input:focus {
+      box-shadow: 0 0 8px #00e5ff;
+      background-color: rgba(255,255,255,0.3);
+    }
+
+    .otp-container {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 14px;
+    }
+
+    #otp {
+      flex: 1;
+      padding: 14px;
+      border-radius: 10px;
+      border: none;
+      background-color: rgba(255,255,255,0.2);
+      color: white;
+      font-size: 4.5vw;
+      outline: none;
+      box-sizing: border-box;
+      transition: box-shadow 0.3s ease;
+    }
+
+    #otp:focus {
+      box-shadow: 0 0 8px #00e5ff;
+      background-color: rgba(255,255,255,0.3);
+    }
+
+    #sendOtpBtn {
+      padding: 14px 18px;
+      font-size: 4vw;
+      background-color: #00e5ff;
+      color: black;
+      border: none;
+      border-radius: 10px;
+      cursor: pointer;
+      white-space: nowrap;
+      transition: background-color 0.3s ease;
+    }
+
+    #sendOtpBtn:hover {
+      background-color: #00bcd4;
+    }
+
+    button.submit-btn {
+      width: 100%;
+      padding: 14px;
+      background-color: #00e5ff;
+      border: none;
+      border-radius: 10px;
+      font-weight: bold;
+      font-size: 5vw;
+      cursor: pointer;
+      color: #000;
+      transition: background-color 0.3s ease;
+    }
+
+    button.submit-btn:hover {
+      background-color: #00bcd4;
+    }
+
+    #successMsg {
+      margin-top: 10px;
+      font-size: 4vw;
+      color: #a0f4ff;
+      min-height: 1.5em;
+    }
+
+    .links {
+      margin-top: 15px;
+    }
+
+    .links a {
+      color: #00e5ff;
+      text-decoration: none;
+      font-size: 4vw;
+    }
+
+    @media (min-width: 600px) {
+      .container {
+        padding: 30px;
+        border-radius: 20px;
+      }
+      .header-image {
+        max-height: 180px;
+        margin-bottom: 20px;
+      }
+      h2 {
+        font-size: 28px;
+      }
+      input, #otp, #sendOtpBtn, button.submit-btn {
+        font-size: 16px;
+        padding: 12px;
+      }
+      #sendOtpBtn {
+        padding: 12px 16px;
+      }
+      #successMsg {
+        font-size: 15px;
+      }
+      .links a {
+        font-size: 14px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <img src="Copilot_20250612_150923.png" alt="صورة ترحيبية" class="header-image" />
+    <h2>إنشاء حساب جديد</h2>
+
+    <input id="email" type="email" placeholder="البريد الإلكتروني" />
+    <input id="password" type="password" placeholder="كلمة المرور" />
+
+    <div class="otp-container">
+      <input id="otp" type="text" placeholder="أدخل كود التحقق" />
+      <button id="sendOtpBtn">إرسال</button>
+    </div>
+
+    <button id="submitBtn" class="submit-btn">تسجيل وتأكيد</button>
+    <div id="successMsg"></div>
+
+    <div class="links">
+      <a href="login.html">لديك حساب؟ تسجيل الدخول</a>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/emailjs-com@3/dist/email.min.js"></script>
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+    import { getAuth, createUserWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+    import { getFirestore, doc, setDoc } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyCmv3HQkT0PFg_66im4vSbna4oQu29dTkc",
+      authDomain: "earnovalogin.firebaseapp.com",
+      databaseURL: "https://earnovalogin-default-rtdb.firebaseio.com",
+      projectId: "earnovalogin",
+      storageBucket: "earnovalogin.appspot.com",
+      messagingSenderId: "488267724180",
+      appId: "1:488267724180:web:b2a3376a94735bca6e8b81"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getFirestore(app);
+
+    emailjs.init("Naau2JR_kknNHfTu9");
+    const serviceId = "service_uo7wk4d";
+    const templateId = "template_ttve1ze";
+
+    let generatedOTP = "";
+
+    document.getElementById("sendOtpBtn").addEventListener("click", async () => {
+      const email = document.getElementById("email").value.trim();
+      if (!email) return alert("يرجى إدخال البريد الإلكتروني");
+
+      generatedOTP = Math.floor(100000 + Math.random() * 900000).toString();
+      try {
+        await emailjs.send(serviceId, templateId, {
+          to_email: email,
+          message: generatedOTP
+        });
+        document.getElementById("successMsg").innerText = "تم إرسال كود التحقق إلى بريدك.";
+      } catch (error) {
+        alert("فشل في إرسال الكود: " + error.message);
+      }
+    });
+
+    document.getElementById("submitBtn").addEventListener("click", async () => {
+      const email = document.getElementById("email").value.trim();
+      const password = document.getElementById("password").value.trim();
+      const otp = document.getElementById("otp").value.trim();
+
+      if (!email || !password || !otp) return alert("يرجى ملء جميع الحقول");
+      if (password.length < 6) return alert("كلمة المرور يجب أن تكون 6 حروف على الأقل");
+      if (otp !== generatedOTP) return alert("رمز التحقق غير صحيح");
+
+      try {
+        const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+        const user = userCredential.user;
+        const inviteCode = Math.floor(100000 + Math.random() * 900000).toString();
+
+        await setDoc(doc(db, "users", user.uid), {
+          email: email,
+          balance: 0,
+          invites: 0,
+          products: 0,
+          inviteCode: inviteCode,
+          createdAt: new Date()
+        });
+
+        alert("تم إنشاء الحساب وتأكيد الكود بنجاح!");
+        window.location.href = "login.html";
+      } catch (error) {
+        if (error.code === 'auth/email-already-in-use') {
+          alert("هذا البريد مستخدم بالفعل.");
+        } else {
+          alert("حدث خطأ أثناء التسجيل: " + error.message);
+        }
+      }
+    });
+  </script>
+</body>
+</html>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

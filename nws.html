@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <title>من نحن؟</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      padding-bottom: 60px; /* مساحة للشريط السفلي */
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: linear-gradient(to bottom, #0f2027, #203a43, #2c5364);
+      color: white;
+    }
+
+    header {
+      text-align: center;
+      padding: 25px 10px 10px;
+    }
+
+    header h1 {
+      font-size: 24px;
+      color: #00ffc3;
+      text-shadow: 0 0 10px #00ffc3;
+      margin: 0;
+    }
+
+    header i {
+      font-size: 24px;
+      margin-right: 8px;
+      color: #ffb347;
+    }
+
+    .content-box {
+      max-width: 90%;
+      margin: 20px auto;
+      padding: 20px;
+      background: rgba(255, 255, 255, 0.05);
+      border-radius: 12px;
+      box-shadow: 0 0 10px rgba(0, 255, 204, 0.1);
+      line-height: 1.8;
+      font-size: 15px;
+    }
+
+    h2 {
+      color: #00e5ff;
+      text-align: center;
+      font-size: 20px;
+      margin-bottom: 15px;
+    }
+
+    ul {
+      list-style: none;
+      padding: 0;
+    }
+
+    ul li {
+      margin-bottom: 10px;
+      font-size: 15px;
+    }
+
+    ul li::before {
+      content: "💼 ";
+      margin-left: 5px;
+    }
+
+    .footer-note {
+      text-align: center;
+      margin-top: 20px;
+      font-size: 13px;
+      color: #aaa;
+    }
+
+    /* الشريط السفلي */
+    .bottom-nav {
+      display: flex;
+      justify-content: space-around;
+      background-color: rgba(0, 0, 0, 0.8);
+      border-top: 1px solid #00e5ff;
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      width: 100%;
+      height: 60px;
+      z-index: 1000;
+    }
+
+    .nav-item {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      flex: 1;
+      text-decoration: none;
+      color: #00e5ff;
+      font-size: 11px;
+      transition: color 0.3s ease;
+    }
+
+    .nav-item:hover {
+      color: #00bcd4;
+    }
+
+    .nav-item i {
+      font-size: 18px;
+      margin-bottom: 2px;
+    }
+
+    @media (min-width: 600px) {
+      header h1 {
+        font-size: 28px;
+      }
+
+      .content-box {
+        max-width: 600px;
+        font-size: 16px;
+      }
+
+      h2 {
+        font-size: 22px;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <h1><i class="fas fa-briefcase"></i> استثمار ذكي</h1>
+  </header>
+
+  <div class="content-box">
+    <h2>من نحن؟</h2>
+    <p>نحن منصة استثمارية حديثة تعمل على توظيف أموالك في مجالات حيوية وواعدة، مثل:</p>
+    <ul>
+      <li>🌱 الزراعة الذكية باستخدام أحدث التقنيات</li>
+      <li>🐔 تربية الدواجن وإنتاج الفراخ البيضاء</li>
+      <li>📦 التجارة والتوزيع المحلي</li>
+      <li>🌍 التصدير للأسواق العالمية بأعلى جودة</li>
+    </ul>
+    <p class="footer-note">هدفنا تحقيق أرباح حقيقية للمستثمرين من خلال مشاريع واقعية ومستقرة في السوق المصري والعالمي.</p>
+  </div>
+
+  <!-- الشريط السفلي -->
+  <div class="bottom-nav">
+    <a href="index.html" class="nav-item">
+      <i class="fas fa-home"></i>
+      الرئيسية
+    </a>
+    <a href="money.html" class="nav-item">
+      <i class="fas fa-coins"></i>
+      استثمر المال
+    </a>
+    <a href="page.html" class="nav-item">
+      <i class="fas fa-tasks"></i>
+      المهام
+    </a>
+    <a href="account.html" class="nav-item">
+      <i class="fas fa-user"></i>
+      حسابي
+    </a>
+    <a href="siting.html" class="nav-item">
+      <i class="fas fa-cogs"></i>
+      الإعدادات
+    </a>
+  </div>
+
+</body>
+</html>
+
+
+

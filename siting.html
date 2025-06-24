@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="ar">
+<head>
+  <meta charset="UTF-8">
+  <title>الإعدادات</title>
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      font-family: 'Cairo', sans-serif;
+      direction: rtl;
+      background: black;
+      overflow: hidden;
+    }
+
+    /* خلفية النجوم */
+    .stars {
+      width: 100%;
+      height: 100%;
+      background: black url('https://i.imgur.com/UePbdph.png') repeat;
+      animation: moveStars 200s linear infinite;
+      position: fixed;
+      top: 0;
+      left: 0;
+      z-index: -1;
+    }
+
+    @keyframes moveStars {
+      from { background-position: 0 0; }
+      to { background-position: 10000px 10000px; }
+    }
+
+    .settings-container {
+      background: rgba(255, 255, 255, 0.1);
+      backdrop-filter: blur(10px);
+      max-width: 500px;
+      margin: 80px auto;
+      padding: 30px;
+      border-radius: 16px;
+      color: white;
+      box-shadow: 0 0 20px rgba(0,255,255,0.3);
+    }
+
+    h2 {
+      text-align: center;
+      margin-bottom: 20px;
+      color: #00ffff;
+      text-shadow: 0 0 5px #00ffff;
+    }
+
+    label {
+      display: block;
+      margin: 10px 0 5px;
+      color: #fff;
+    }
+
+    input {
+      width: 100%;
+      padding: 12px;
+      margin-bottom: 15px;
+      border-radius: 10px;
+      border: none;
+      background: rgba(255, 255, 255, 0.2);
+      color: white;
+      font-size: 15px;
+    }
+
+    button {
+      width: 100%;
+      padding: 12px;
+      border: none;
+      border-radius: 10px;
+      background: #00ffff;
+      color: black;
+      font-size: 16px;
+      cursor: pointer;
+      transition: 0.3s;
+    }
+
+    button:hover {
+      background: #00cccc;
+    }
+
+    button.logout {
+      background: #ff4d4d;
+      margin-top: 10px;
+    }
+
+    button.logout:hover {
+      background: #cc0000;
+    }
+
+    #message {
+      text-align: center;
+      color: #00ff99;
+      margin-top: 10px;
+    }
+  </style>
+</head>
+<body>
+  <div class="stars"></div>
+
+  <div class="settings-container">
+    <h2>إعدادات الحساب</h2>
+
+    <label for="username">الاسم</label>
+    <input type="text" id="username" placeholder="اسمك">
+
+    <label for="email">البريد الإلكتروني</label>
+    <input type="email" id="email" placeholder="بريدك الإلكتروني">
+
+    <label for="password">كلمة المرور الجديدة</label>
+    <input type="password" id="password" placeholder="اتركها فارغة إن لم ترغب بالتغيير">
+
+    <div id="message"></div>
+
+    <button onclick="saveSettings()">💾 حفظ الإعدادات</button>
+    <button class="logout" onclick="logout()">🚪 تسجيل الخروج</button>
+  </div>
+
+  <!-- Firebase Scripts -->
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js"></script>
+
+  <script>
+    const firebaseConfig = {
+      apiKey: "AIzaSyCmv3HQkT0PFg_66im4vSbna4oQu29dTkc",
+      authDomain: "earnovalogin.firebaseapp.com",
+      projectId: "earnovalogin",
+      storageBucket: "earnovalogin.appspot.com",
+      messagingSenderId: "488267724180",
+      appId: "1:488267724180:web:b2a3376a94735bca6e8b81"
+    };
+
+    firebase.initializeApp(firebaseConfig);
+    const auth = firebase.auth();
+    const db = firebase.firestore();
+
+    auth.onAuthStateChanged(user => {
+      if (user) {
+        document.getElementById('email').value = user.email;
+        db.collection("users").doc(user.uid).get().then(doc => {
+          if (doc.exists) {
+            document.getElementById('username').value = doc.data().name || '';
+          }
+        });
+      } else {
+        window.location.href = "login.html";
+      }
+    });
+
+    function saveSettings() {
+      const name = document.getElementById("username").value;
+      const email = document.getElementById("email").value;
+      const password = document.getElementById("password").value;
+      const user = auth.currentUser;
+
+      if (!user) return;
+
+      user.updateEmail(email).catch(err => alert("خطأ في تحديث البريد: " + err.message));
+      if (password) {
+        user.updatePassword(password).catch(err => alert("خطأ في تغيير كلمة المرور: " + err.message));
+      }
+
+      db.collection("users").doc(user.uid).set({ name }, { merge: true })
+        .then(() => {
+          document.getElementById("message").innerText = "✅ تم حفظ التغييرات!";
+        })
+        .catch(err => {
+          alert("خطأ في حفظ البيانات: " + err.message);
+        });
+    }
+
+    function logout() {
+      auth.signOut().then(() => {
+        window.location.href = "login.html";
+      });
+    }
+  </script>
+</body>
+</html>
+
+

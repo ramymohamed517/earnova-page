@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <title>تسجيل الدخول</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: linear-gradient(-45deg, #0f2027, #203a43, #2c5364, #000000);
+      background-size: 400% 400%;
+      animation: gradientBG 15s ease infinite;
+      height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      position: relative;
+      overflow: hidden;
+    }
+
+    @keyframes gradientBG {
+      0% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+      100% { background-position: 0% 50%; }
+    }
+
+    .container {
+      background: rgba(255, 255, 255, 0.1);
+      backdrop-filter: blur(12px);
+      padding: 8vw;
+      border-radius: 15px;
+      box-shadow: 0 0 25px rgba(0, 229, 255, 0.5);
+      width: 90%;
+      max-width: 400px;
+      box-sizing: border-box;
+      position: relative;
+      z-index: 1;
+    }
+
+    .header-image {
+      width: 100%;           /* عرض كامل */
+      height: auto;          /* يحافظ على نسبة الارتفاع */
+      max-height: 160px;     /* ارتفاع مناسب للهواتف */
+      object-fit: cover;
+      border-radius: 20px;
+      margin-bottom: 20px;
+      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+    }
+
+    h2 {
+      margin-bottom: 20px;
+      color: #00e5ff;
+      text-align: center;
+      font-size: 6vw;
+    }
+
+    input {
+      width: 100%;
+      padding: 12px;
+      margin-bottom: 16px;
+      border-radius: 10px;
+      border: none;
+      background-color: rgba(255,255,255,0.2);
+      color: white;
+      font-size: 4vw;
+      outline: none;
+      transition: box-shadow 0.3s ease;
+    }
+
+    input::placeholder {
+      color: #ddd;
+      font-size: 3.5vw;
+    }
+
+    input:focus {
+      box-shadow: 0 0 8px #00e5ff;
+      background-color: rgba(255,255,255,0.3);
+    }
+
+    button {
+      width: 100%;
+      padding: 12px;
+      background-color: #00e5ff;
+      border: none;
+      border-radius: 10px;
+      font-weight: bold;
+      font-size: 4.5vw;
+      cursor: pointer;
+      transition: background-color 0.3s ease;
+      color: #000;
+    }
+
+    button:hover {
+      background-color: #00bcd4;
+    }
+
+    .links {
+      margin-top: 20px;
+      text-align: center;
+    }
+
+    .links a {
+      color: #00e5ff;
+      text-decoration: none;
+      font-size: 3.5vw;
+      font-weight: bold;
+    }
+
+    .success-message {
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      background: rgba(0, 229, 255, 0.9);
+      color: #000;
+      padding: 15px 30px;
+      border-radius: 8px;
+      font-size: 18px;
+      font-weight: bold;
+      box-shadow: 0 0 20px rgba(0, 229, 255, 0.7);
+      z-index: 1000;
+      display: none;
+      animation: pulse 2s infinite;
+      text-align: center;
+      min-width: 200px;
+    }
+
+    @keyframes pulse {
+      0% { transform: translate(-50%, -50%) scale(1); }
+      50% { transform: translate(-50%, -50%) scale(1.03); }
+      100% { transform: translate(-50%, -50%) scale(1); }
+    }
+
+    @media (min-width: 600px) {
+      h2 { font-size: 28px; }
+      input { font-size: 16px; }
+      button { font-size: 16px; }
+      .links a { font-size: 14px; }
+      .header-image {
+        max-height: 180px; /* ارتفاع أكبر للشاشات الأكبر */
+      }
+      .success-message {
+        font-size: 20px;
+        padding: 18px 35px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container" role="main" aria-label="نموذج تسجيل الدخول">
+    <img src="Copilot_20250612_150923.png" alt="صورة ترحيبية" class="header-image" />
+    <h2>تسجيل الدخول</h2>
+    <input id="email" type="email" placeholder="البريد الإلكتروني" aria-label="البريد الإلكتروني" required />
+    <input id="password" type="password" placeholder="كلمة المرور" aria-label="كلمة المرور" required />
+    <button id="loginBtn" type="button">دخول</button>
+    <div class="links">
+      <a href="register.html" tabindex="0">ليس لديك حساب؟ أنشئ حساب جديد</a>
+    </div>
+  </div>
+
+  <div id="successMessage" class="success-message">
+    تم تسجيل الدخول بنجاح!
+  </div>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+    import { getAuth, signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyCmv3HQkT0PFg_66im4vSbna4oQu29dTkc",
+      authDomain: "earnovalogin.firebaseapp.com",
+      projectId: "earnovalogin",
+      storageBucket: "earnovalogin.appspot.com",
+      messagingSenderId: "488267724180",
+      appId: "1:488267724180:web:b2a3376a94735bca6e8b81"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+
+    document.getElementById('loginBtn').addEventListener('click', async () => {
+      const email = document.getElementById('email').value.trim();
+      const password = document.getElementById('password').value.trim();
+
+      if (!email || !password) {
+        alert('يرجى ملء جميع الحقول');
+        return;
+      }
+
+      try {
+        await signInWithEmailAndPassword(auth, email, password);
+        
+        const successMessage = document.getElementById('successMessage');
+        successMessage.style.display = 'block';
+        
+        setTimeout(() => {
+          successMessage.style.display = 'none';
+          window.location.href = 'index.html';
+        }, 3000);
+        
+      } catch (error) {
+        alert('خطأ في تسجيل الدخول: ' + error.message);
+      }
+    });
+  </script>
+</body>
+</html>
+
+
+
+
+

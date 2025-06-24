@@ -1,0 +1,311 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <title>نظام الدعوات</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700&display=swap" rel="stylesheet">
+  <style>
+    body {
+      margin: 0;
+      font-family: 'Cairo', sans-serif;
+      background-color: #121212;
+      color: white;
+    }
+
+    .container {
+      padding: 20px;
+    }
+
+    .box {
+      background-color: #1e1e1e;
+      padding: 20px;
+      border-radius: 15px;
+      margin-bottom: 20px;
+      box-shadow: 0 0 10px rgba(255, 215, 0, 0.1);
+    }
+
+    .box input {
+      width: 100%;
+      background: #2c2c2c;
+      border: none;
+      border-radius: 10px;
+      padding: 10px;
+      color: #fff;
+      font-size: 18px;
+      text-align: center;
+    }
+
+    .copy-btn {
+      margin-top: 10px;
+      width: 100%;
+      background-color: #ffcc00;
+      border: none;
+      border-radius: 10px;
+      color: black;
+      font-weight: bold;
+      padding: 10px;
+      cursor: pointer;
+    }
+
+    .level-table {
+      width: 100%;
+      background-color: #1e1e1e;
+      border-radius: 15px;
+      margin-top: 20px;
+      padding: 10px;
+      color: white;
+    }
+
+    .level-row {
+      display: flex;
+      justify-content: space-between;
+      padding: 10px 0;
+      border-bottom: 1px solid #333;
+    }
+
+    .level-row:last-child {
+      border-bottom: none;
+    }
+
+    .stats {
+      display: flex;
+      justify-content: space-between;
+      margin-top: 20px;
+    }
+
+    .stat-box {
+      flex: 1;
+      background-color: #1e1e1e;
+      margin: 5px;
+      border-radius: 15px;
+      padding: 20px;
+      text-align: center;
+      color: #ffcc00;
+      font-size: 18px;
+      box-shadow: 0 0 10px rgba(255, 215, 0, 0.1);
+    }
+
+    .description {
+      margin-top: 30px;
+      background-color: #1e1e1e;
+      padding: 15px;
+      border-radius: 10px;
+      font-size: 15px;
+      line-height: 1.8;
+      color: #ccc;
+    }
+
+    .invited-users {
+      margin-top: 30px;
+      background-color: #1e1e1e;
+      padding: 15px;
+      border-radius: 10px;
+    }
+
+    .invited-users table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+
+    .invited-users th, .invited-users td {
+      padding: 10px;
+      text-align: right;
+      border-bottom: 1px solid #333;
+    }
+
+    .bottom-nav {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      width: 100%;
+      background-color: #1e1e1e;
+      display: flex;
+      justify-content: space-around;
+      padding: 10px 0;
+      border-top: 1px solid #333;
+    }
+
+    .bottom-nav div {
+      color: #aaa;
+      text-align: center;
+      font-size: 14px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="box">
+      <h3>رمز الدعوة</h3>
+      <input type="text" id="inviteCode" value="..." readonly>
+      <button class="copy-btn" onclick="copyCode()">نسخ</button>
+    </div>
+
+    <div class="box">
+      <h3>رابط الدعوة</h3>
+      <input type="text" id="inviteLink" value="..." readonly>
+      <button class="copy-btn" onclick="copyLink()">نسخ</button>
+    </div>
+
+    <div class="level-table">
+      <div class="level-row">
+        <span>العمولة</span>
+        <span>الأشخاص</span>
+        <span>المكافأة</span>
+      </div>
+      <div class="level-row">
+        <span>35%</span>
+        <span id="lvl1Count">-</span>
+        <span id="lvl1Reward">EGP -</span>
+      </div>
+      <div class="level-row">
+        <span>3%</span>
+        <span id="lvl2Count">-</span>
+        <span id="lvl2Reward">EGP -</span>
+      </div>
+      <div class="level-row">
+        <span>2%</span>
+        <span id="lvl3Count">-</span>
+        <span id="lvl3Reward">EGP -</span>
+      </div>
+    </div>
+
+    <div class="stats">
+      <div class="stat-box" id="totalPeople">إجمالي الأشخاص<br>-</div>
+      <div class="stat-box" id="totalRewards">إجمالي المكافآت<br>EGP -</div>
+    </div>
+
+    <div class="invited-users">
+      <h3>الأشخاص المدعوون</h3>
+      <table>
+        <thead>
+          <tr>
+            <th>البريد الإلكتروني</th>
+            <th>المنتج</th>
+            <th>تاريخ الشراء</th>
+          </tr>
+        </thead>
+        <tbody id="invitedUsersTable"></tbody>
+      </table>
+    </div>
+
+    <div class="description">
+      <p>عندما يقوم صديقك بالتسجيل والاستثمار، ستحصل على الفور على مكافأة بنسبة 35% من مبلغ استخدامه.</p>
+      <p>عندما يستدعي أعضاء فريقك شخص في المستوى 2، ستحصل على مكافأة بنسبة 3%.</p>
+      <p>عندما يستدعي أعضاء فريقك شخص في المستوى 3، ستحصل على مكافأة بنسبة 2%.</p>
+      <p>بمجرد أن يستثمر عضو في فريقك، سيتم إضافة المكافأة تلقائيًا إلى رصيدك ويمكنك سحبها على الفور.</p>
+    </div>
+  </div>
+
+  <div class="bottom-nav">
+    <div>الرئيسية</div>
+    <div>المنتجات</div>
+    <div>الفرق</div>
+    <div>حسابي</div>
+  </div>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+    import { getFirestore, doc, getDoc, collection, getDocs } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+    import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyCmv3HQkT0PFg_66im4vSbna4oQu29dTkc",
+      authDomain: "earnovalogin.firebaseapp.com",
+      databaseURL: "https://earnovalogin-default-rtdb.firebaseio.com",
+      projectId: "earnovalogin",
+      storageBucket: "earnovalogin.appspot.com",
+      messagingSenderId: "488267724180",
+      appId: "1:488267724180:web:b2a3376a94735bca6e8b81"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+    const auth = getAuth(app);
+
+    const codeInput = document.getElementById("inviteCode");
+    const linkInput = document.getElementById("inviteLink");
+    const lvl1Count = document.getElementById("lvl1Count");
+    const lvl2Count = document.getElementById("lvl2Count");
+    const lvl3Count = document.getElementById("lvl3Count");
+    const lvl1Reward = document.getElementById("lvl1Reward");
+    const lvl2Reward = document.getElementById("lvl2Reward");
+    const lvl3Reward = document.getElementById("lvl3Reward");
+    const totalPeople = document.getElementById("totalPeople");
+    const totalRewards = document.getElementById("totalRewards");
+    const invitedUsersTable = document.getElementById("invitedUsersTable");
+
+    onAuthStateChanged(auth, async (user) => {
+      if (user) {
+        const userDoc = doc(db, "users", user.email);
+        const snap = await getDoc(userDoc);
+        if (snap.exists()) {
+          const data = snap.data();
+          const code = data.inviteCode || generateInviteCode();
+          codeInput.value = code;
+          linkInput.value = `https://yourdomain.com/reg?ic=${code}`;
+
+          const c1 = data.level1Count || 0;
+          const c2 = data.level2Count || 0;
+          const c3 = data.level3Count || 0;
+          const r1 = data.level1Reward || 0;
+          const r2 = data.level2Reward || 0;
+          const r3 = data.level3Reward || 0;
+
+          lvl1Count.textContent = c1;
+          lvl2Count.textContent = c2;
+          lvl3Count.textContent = c3;
+          lvl1Reward.textContent = `EGP ${r1}`;
+          lvl2Reward.textContent = `EGP ${r2}`;
+          lvl3Reward.textContent = `EGP ${r3}`;
+          totalPeople.innerHTML = `إجمالي الأشخاص<br>${c1 + c2 + c3}`;
+          totalRewards.innerHTML = `إجمالي المكافآت<br>EGP ${r1 + r2 + r3}`;
+
+          // Fetch invited users
+          const invitedUsersRef = collection(db, "users", user.email, "invitedUsers");
+          const invitedUsersSnap = await getDocs(invitedUsersRef);
+          invitedUsersTable.innerHTML = "";
+          invitedUsersSnap.forEach((doc) => {
+            const invitedData = doc.data();
+            const row = document.createElement("tr");
+            row.innerHTML = `
+              <td>${doc.id}</td>
+              <td>${invitedData.product || '-'}</td>
+              <td>${invitedData.purchaseDate ? new Date(invitedData.purchaseDate).toLocaleDateString('ar-EG') : '-'}</td>
+            `;
+            invitedUsersTable.appendChild(row);
+          });
+        }
+      } else {
+        codeInput.value = "سجّل دخولك أولًا";
+        linkInput.value = "";
+        invitedUsersTable.innerHTML = "<tr><td colspan='3'>سجّل دخولك لعرض البيانات</td></tr>";
+      }
+    });
+
+    function generateInviteCode() {
+      return Math.random().toString(36).substr(2, 8).toUpperCase();
+    }
+
+    function copyCode() {
+      const code = document.getElementById("inviteCode");
+      code.select();
+      document.execCommand("copy");
+      alert("تم نسخ كود الدعوة!");
+    }
+
+    function copyLink() {
+      const link = document.getElementById("inviteLink");
+      link.select();
+      document.execCommand("copy");
+      alert("تم نسخ رابط الدعوة!");
+    }
+  </script>
+</body>
+</html>
+
+
+
+
+
+

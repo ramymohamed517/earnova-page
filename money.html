@@ -1,0 +1,665 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <title>المنتجات</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  
+  <!-- Firebase SDK -->
+  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
+
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      padding: 0;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: linear-gradient(to bottom, #0f2027, #203a43, #2c5364);
+      color: white;
+    }
+
+    .banner {
+      background: linear-gradient(to right, #16222A, #3A6073);
+      padding: 15px;
+      text-align: center;
+      box-shadow: 0 0 10px rgba(0, 229, 255, 0.2);
+      border-bottom-left-radius: 20px;
+      border-bottom-right-radius: 20px;
+    }
+
+    .banner h2 {
+      margin: 0;
+      font-size: 18px;
+      color: #00e5ff;
+    }
+
+    .stats {
+      display: flex;
+      justify-content: space-around;
+      flex-wrap: wrap;
+      margin-top: 10px;
+    }
+
+    .stat-box {
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid #00e5ff22;
+      border-radius: 12px;
+      padding: 8px 12px;
+      margin: 6px;
+      min-width: 120px;
+    }
+
+    .stat-box h4 {
+      margin: 5px 0;
+      font-size: 13px;
+      color: #a0f4ff;
+    }
+
+    .stat-box span {
+      font-size: 12px;
+      color: #eee;
+    }
+
+    .products, .my-products {
+      padding: 15px;
+    }
+
+    .products h2, .my-products h2 {
+      font-size: 18px;
+      color: #00e5ff;
+      text-align: center;
+      margin-bottom: 15px;
+    }
+
+    .product-card {
+      background-color: rgba(255, 255, 255, 0.06);
+      border-radius: 12px;
+      padding: 10px;
+      margin-bottom: 15px;
+      box-shadow: 0 0 8px rgba(0, 229, 255, 0.1);
+      display: flex;
+      align-items: center;
+      gap: 15px;
+      position: relative;
+    }
+
+    .product-card img {
+      width: 100px;
+      height: 100px;
+      object-fit: contain;
+      border-radius: 10px;
+      flex-shrink: 0;
+      background: #fff;
+    }
+
+    .product-details {
+      flex: 1;
+    }
+
+    .product-details h3 {
+      font-size: 14px;
+      margin: 0 0 6px;
+      color: #00e5ff;
+    }
+
+    .product-info {
+      font-size: 12px;
+      color: #ccc;
+      margin: 2px 0;
+      line-height: 1.4;
+    }
+
+    .buy-btn {
+      background: linear-gradient(to right, #00c6ff, #0072ff);
+      color: white;
+      border: none;
+      padding: 8px 15px;
+      border-radius: 20px;
+      cursor: pointer;
+      font-size: 12px;
+      margin-top: 5px;
+      transition: all 0.3s;
+    }
+
+    .buy-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 5px 15px rgba(0, 198, 255, 0.4);
+    }
+
+    .buy-btn:disabled {
+      background: #666;
+      cursor: not-allowed;
+      transform: none;
+      box-shadow: none;
+    }
+
+    /* Modal Styles */
+    .modal {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(0, 0, 0, 0.7);
+      z-index: 1000;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .modal-content {
+      background: linear-gradient(to bottom, #16222A, #3A6073);
+      padding: 20px;
+      border-radius: 15px;
+      width: 90%;
+      max-width: 400px;
+      box-shadow: 0 0 20px rgba(0, 229, 255, 0.3);
+      text-align: center;
+    }
+
+    .modal h3 {
+      color: #00e5ff;
+      margin-top: 0;
+    }
+
+    .modal-info {
+      margin: 10px 0;
+      font-size: 14px;
+    }
+
+    .modal-buttons {
+      display: flex;
+      justify-content: space-around;
+      margin-top: 20px;
+    }
+
+    .confirm-btn {
+      background: linear-gradient(to right, #4CAF50, #2E7D32);
+      color: white;
+      border: none;
+      padding: 10px 20px;
+      border-radius: 20px;
+      cursor: pointer;
+      font-size: 14px;
+    }
+
+    .cancel-btn {
+      background: linear-gradient(to right, #f44336, #c62828);
+      color: white;
+      border: none;
+      padding: 10px 20px;
+      border-radius: 20px;
+      cursor: pointer;
+      font-size: 14px;
+    }
+
+    .alert {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      padding: 15px;
+      background-color: #f44336;
+      color: white;
+      border-radius: 5px;
+      z-index: 1001;
+      display: none;
+      animation: slideIn 0.5s, fadeOut 0.5s 2.5s;
+    }
+
+    @keyframes slideIn {
+      from {right: -300px; opacity: 0;}
+      to {right: 20px; opacity: 1;}
+    }
+
+    @keyframes fadeOut {
+      from {opacity: 1;}
+      to {opacity: 0;}
+    }
+
+    @media (max-width: 480px) {
+      .product-card {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+
+      .product-card img {
+        width: 90px;
+        height: 90px;
+      }
+
+      .product-details {
+        width: 100%;
+      }
+
+      .product-details h3 {
+        font-size: 13px;
+      }
+
+      .product-info {
+        font-size: 11px;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ✅ اللافتة -->
+  <div class="banner">
+    <h2>إحصائيات اليوم</h2>
+    <div class="stats">
+      <div class="stat-box">
+        <h4><i class="fas fa-box"></i> عدد المنتجات</h4>
+        <span id="product-count">0</span>
+      </div>
+      <div class="stat-box">
+        <h4><i class="fas fa-dollar-sign"></i> الدخل اليومي</h4>
+        <span id="daily-income">0 ج.م</span>
+      </div>
+      <div class="stat-box">
+        <h4><i class="fas fa-wallet"></i> رصيدك</h4>
+        <span id="user-balance">0 ج.م</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- ✅ المنتجات -->
+  <div class="products">
+    <h2>المنتجات المتاحة</h2>
+    <div class="product-card" data-id="1" data-price="200" data-daily="35" data-days="60" data-total="2100">
+      <img src="car1.png" alt="منتج 1" />
+      <div class="product-details">
+        <h3>منتج 1 - باقة فضية</h3>
+        <div class="product-info">السعر: 200 ج.م</div>
+        <div class="product-info">عدد الأيام: 60</div>
+        <div class="product-info">الربح اليومي: 35 ج.م</div>
+        <div class="product-info">الربح الكامل: 2100 ج.م</div>
+        <button class="buy-btn">شراء</button>
+      </div>
+    </div>
+
+    <div class="product-card" data-id="2" data-price="600" data-daily="60" data-days="100" data-total="6000">
+      <img src="car2.png" alt="منتج 2" />
+      <div class="product-details">
+        <h3>منتج 2 - باقة ذهبية</h3>
+        <div class="product-info">السعر: 600 ج.م</div>
+        <div class="product-info">عدد الأيام: 100</div>
+        <div class="product-info">الربح اليومي: 60 ج.م</div>
+        <div class="product-info">الربح الكامل: 6000 ج.م</div>
+        <button class="buy-btn">شراء</button>
+      </div>
+    </div>
+
+    <div class="product-card" data-id="3" data-price="1500" data-daily="120" data-days="100" data-total="12000">
+      <img src="car3.png" alt="منتج 3" />
+      <div class="product-details">
+        <h3>منتج 3 - باقة VIP</h3>
+        <div class="product-info">السعر: 1500 ج.م</div>
+        <div class="product-info">عدد الأيام: 100</div>
+        <div class="product-info">الربح اليومي: 120 ج.م</div>
+        <div class="product-info">الربح الكامل: 12000 ج.م</div>
+        <button class="buy-btn">شراء</button>
+      </div>
+    </div>  
+
+    <div class="product-card" data-id="4" data-price="3000" data-daily="300" data-days="200" data-total="60000">
+      <img src="car4.png" alt="منتج 4" />
+      <div class="product-details">
+        <h3>منتج 4 - باقة الماسية</h3>
+        <div class="product-info">السعر: 3000 ج.م</div>
+        <div class="product-info">عدد الأيام: 200</div>
+        <div class="product-info">الربح اليومي: 300 ج.م</div>
+        <div class="product-info">الربح الكامل: 60000 ج.م</div>
+        <button class="buy-btn">شراء</button>
+      </div>
+    </div>
+
+    <div class="product-card" data-id="5" data-price="6000" data-daily="500" data-days="200" data-total="10000">
+      <img src="car6.png" alt="منتج 5" />
+      <div class="product-details">
+        <h3>منتج 5 - باقة بلاتينية</h3>
+        <div class="product-info">السعر: 6000 ج.م</div>
+        <div class="product-info">عدد الأيام: 200</div>
+        <div class="product-info">الربح اليومي: 500 ج.م</div>
+        <div class="product-info">الربح الكامل: 10000 ج.م</div>
+        <button class="buy-btn">شراء</button>
+      </div>
+    </div>
+
+    <div class="product-card" data-id="6" data-price="12000" data-daily="1000" data-days="500" data-total="500000">
+      <img src="car5.png" alt="منتج 6" />
+      <div class="product-details">
+        <h3>منتج 6 - باقة اقتصادية</h3>
+        <div class="product-info">السعر: 12000 ج.م</div>
+        <div class="product-info">عدد الأيام: 500</div>
+        <div class="product-info">الربح اليومي: 1000 ج.م</div>
+        <div class="product-info">الربح الكامل: 500000 ج.م</div>
+        <button class="buy-btn">شراء</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ✅ منتجاتي -->
+  <div class="my-products">
+    <h2>منتجاتي</h2>
+    <div id="my-products-list"></div>
+  </div>
+
+  <!-- نافذة تأكيد الشراء -->
+  <div id="purchaseModal" class="modal">
+    <div class="modal-content">
+      <h3>تأكيد عملية الشراء</h3>
+      <div class="modal-info" id="modalProductName"></div>
+      <div class="modal-info">السعر: <span id="modalProductPrice"></span> ج.م</div>
+      <div class="modal-info">الربح اليومي: <span id="modalDailyProfit"></span> ج.م</div>
+      <div class="modal-info">الربح الكلي: <span id="modalTotalProfit"></span> ج.م</div>
+      <div class="modal-info">رصيدك الحالي: <span id="modalCurrentBalance"></span> ج.م</div>
+      <div class="modal-buttons">
+        <button class="confirm-btn" id="confirmPurchase">تأكيد الشراء</button>
+        <button class="cancel-btn" id="cancelPurchase">إلغاء</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- رسالة عدم كفاية الرصيد -->
+  <div id="insufficientBalanceAlert" class="alert">
+    ليس لديك رصيد كافي لإتمام هذه العملية
+  </div>
+
+  <!-- رسالة نجاح الشراء -->
+  <div id="successAlert" class="alert" style="background-color: #4CAF50; display: none;">
+    تم شراء المنتج
+  </div>
+
+  <!-- رسالة عدم تسجيل الدخول -->
+  <div id="loginAlert" class="alert" style="background-color: #FF9800; display: none;">
+    يجب تسجيل الدخول أولاً
+  </div>
+
+  <!-- رسالة المنتج تم شراؤه بالفعل -->
+  <div id="alreadyPurchasedAlert" class="alert" style="background-color: #FF9800; display: none;">
+    هذا المنتج تم شراؤه بالفعل
+  </div>
+
+  <script>
+    // Firebase configuration
+    const firebaseConfig = {
+      apiKey: "AIzaSyCmv3HQkT0PFg_66im4vSbna4oQu29dTkc",
+      authDomain: "earnovalogin.firebaseapp.com",
+      projectId: "earnovalogin",
+      storageBucket: "earnovalogin.appspot.com",
+      messagingSenderId: "488267724180",
+      appId: "1:488267724180:web:b2a3376a94735bca6e8b81"
+    };
+
+    // Initialize Firebase
+    firebase.initializeApp(firebaseConfig);
+    const auth = firebase.auth();
+    const db = firebase.firestore();
+
+    // بيانات المستخدم
+    let currentUserId = null;
+    let userBalance = 0;
+    let selectedProduct = null;
+
+    // تحديث رصيد المستخدم من Firestore
+    function updateUserBalance() {
+      if (!currentUserId) return;
+
+      db.collection("users").doc(currentUserId).get().then((doc) => {
+        if (doc.exists) {
+          userBalance = doc.data().balance || 0;
+        } else {
+          userBalance = 0;
+          db.collection("users").doc(currentUserId).set({
+            balance: userBalance
+          });
+        }
+        document.getElementById("user-balance").textContent = userBalance.toFixed(2) + " ج.م";
+      }).catch((error) => {
+        console.error("Error fetching balance:", error);
+        userBalance = 0;
+        document.getElementById("user-balance").textContent = "0 ج.م";
+      });
+    }
+
+    // تحديث عدد المنتجات المشتراة في الإحصائيات
+    function updateProductCount() {
+      if (!currentUserId) return;
+
+      db.collection("userProducts")
+        .where("userId", "==", currentUserId)
+        .get()
+        .then((querySnapshot) => {
+          document.getElementById("product-count").textContent = querySnapshot.size;
+        })
+        .catch((error) => {
+          console.error("Error fetching product count:", error);
+          document.getElementById("product-count").textContent = "0";
+        });
+    }
+
+    // تعطيل أزرار المنتجات المشتراة
+    function disablePurchasedProducts() {
+      if (!currentUserId) return;
+
+      db.collection("userProducts")
+        .where("userId", "==", currentUserId)
+        .get()
+        .then((querySnapshot) => {
+          const purchasedProductIds = [];
+          querySnapshot.forEach((doc) => {
+            purchasedProductIds.push(doc.data().productId);
+          });
+
+          document.querySelectorAll('.product-card').forEach((card) => {
+            const productId = card.dataset.id;
+            const buyButton = card.querySelector('.buy-btn');
+            if (purchasedProductIds.includes(productId)) {
+              buyButton.disabled = true;
+              buyButton.textContent = 'تم الشراء';
+            }
+          });
+        })
+        .catch((error) => {
+          console.error("Error checking purchased products:", error);
+        });
+    }
+
+    // جلب وعرض المنتجات المشتراة
+    function loadUserProducts() {
+      if (!currentUserId) return;
+
+      const productsList = document.getElementById("my-products-list");
+      productsList.innerHTML = "";
+
+      db.collection("userProducts")
+        .where("userId", "==", currentUserId)
+        .get()
+        .then((querySnapshot) => {
+          if (querySnapshot.empty) {
+            productsList.innerHTML = '<p style="text-align: center; color: #ccc;">لا توجد منتجات مشتراة بعد.</p>';
+            return;
+          }
+
+          querySnapshot.forEach((doc) => {
+            const product = doc.data();
+            const productElement = document.createElement("div");
+            productElement.className = "product-card";
+            productElement.innerHTML = `
+              <img src="car${product.productId}.png" alt="${product.productName}" />
+              <div class="product-details">
+                <h3>${product.productName}</h3>
+                <div class="product-info">السعر: ${product.price.toFixed(2)} ج.م</div>
+                <div class="product-info">عدد الأيام المتبقية: ${product.daysRemaining}</div>
+                <div class="product-info">الربح اليومي: ${product.dailyProfit.toFixed(2)} ج.م</div>
+                <div class="product-info">الربح الكامل: ${product.totalProfit.toFixed(2)} ج.م</div>
+                <div class="product-info">تاريخ الشراء: ${new Date(product.purchaseDate).toLocaleDateString('ar-EG')}</div>
+              </div>
+            `;
+            productsList.appendChild(productElement);
+          });
+        })
+        .catch((error) => {
+          console.error("Error fetching user products:", error);
+          productsList.innerHTML = '<p style="text-align: center; color: #ccc;">حدث خطأ أثناء جلب المنتجات.</p>';
+        });
+    }
+
+    // التحقق من حالة تسجيل الدخول
+    auth.onAuthStateChanged((user) => {
+      if (user) {
+        currentUserId = user.uid;
+        updateUserBalance();
+        updateProductCount();
+        loadUserProducts();
+        disablePurchasedProducts(); // تعطيل أزرار المنتجات المشتراة
+      } else {
+        document.getElementById("loginAlert").style.display = "block";
+        setTimeout(() => {
+          document.getElementById("loginAlert").style.display = "none";
+          window.location.href = "login.html";
+        }, 3000);
+      }
+    });
+
+    // تهيئة الصفحة
+    document.addEventListener('DOMContentLoaded', function() {
+      // إضافة مستمعين لأزرار الشراء
+      const buyButtons = document.querySelectorAll('.buy-btn');
+      buyButtons.forEach(button => {
+        button.addEventListener('click', function() {
+          if (!currentUserId) {
+            document.getElementById("loginAlert").style.display = "block";
+            setTimeout(() => {
+              document.getElementById("loginAlert").style.display = "none";
+            }, 3000);
+            return;
+          }
+
+          const productCard = this.closest('.product-card');
+          selectedProduct = {
+            id: productCard.dataset.id,
+            name: productCard.querySelector('h3').textContent,
+            price: parseFloat(productCard.dataset.price),
+            dailyProfit: parseFloat(productCard.dataset.daily),
+            days: parseInt(productCard.dataset.days),
+            totalProfit: parseFloat(productCard.dataset.total)
+          };
+
+          // التحقق إذا كان المنتج تم شراؤه بالفعل
+          db.collection("userProducts")
+            .where("userId", "==", currentUserId)
+            .where("productId", "==", selectedProduct.id)
+            .get()
+            .then((querySnapshot) => {
+              if (!querySnapshot.empty) {
+                document.getElementById('alreadyPurchasedAlert').style.display = 'block';
+                setTimeout(() => {
+                  document.getElementById('alreadyPurchasedAlert').style.display = 'none';
+                }, 3000);
+                return;
+              }
+
+              // جلب أحدث قيمة للرصيد من Firestore
+              db.collection("users").doc(currentUserId).get().then((doc) => {
+                userBalance = doc.data().balance || 0;
+
+                document.getElementById('modalProductName').textContent = selectedProduct.name;
+                document.getElementById('modalProductPrice').textContent = selectedProduct.price.toFixed(2);
+                document.getElementById('modalDailyProfit').textContent = selectedProduct.dailyProfit.toFixed(2);
+                document.getElementById('modalTotalProfit').textContent = selectedProduct.totalProfit.toFixed(2);
+                document.getElementById('modalCurrentBalance').textContent = userBalance.toFixed(2);
+
+                document.getElementById('purchaseModal').style.display = 'flex';
+              }).catch((error) => {
+                console.error("Error fetching balance for modal:", error);
+                document.getElementById('insufficientBalanceAlert').style.display = 'block';
+                setTimeout(() => {
+                  document.getElementById('insufficientBalanceAlert').style.display = 'none';
+                }, 3000);
+              });
+            })
+            .catch((error) => {
+              console.error("Error checking product purchase:", error);
+            });
+        });
+      });
+
+      // زر تأكيد الشراء
+      document.getElementById('confirmPurchase').addEventListener('click', function() {
+        if (!currentUserId || !selectedProduct) return;
+
+        // جلب الرصيد مرة أخرى للتأكد من القيمة الحالية
+        db.collection("users").doc(currentUserId).get().then((doc) => {
+          userBalance = doc.data().balance || 0;
+
+          if (userBalance >= selectedProduct.price) {
+            // عملية الشراء ناجحة
+            const newBalance = userBalance - selectedProduct.price;
+
+            // تحديث الرصيد في Firestore
+            return db.collection("users").doc(currentUserId).update({
+              balance: newBalance
+            }).then(() => {
+              // إضافة المنتج للمستخدم مع lastProfitUpdate
+              return db.collection("userProducts").add({
+                userId: currentUserId,
+                productId: selectedProduct.id,
+                productName: selectedProduct.name,
+                purchaseDate: new Date().toISOString(),
+                price: selectedProduct.price,
+                dailyProfit: selectedProduct.dailyProfit,
+                daysRemaining: selectedProduct.days,
+                totalProfit: selectedProduct.totalProfit,
+                lastProfitUpdate: new Date().toISOString() // حقل جديد لتتبع آخر تحديث للربح
+              }).then(() => {
+                // إغلاق النافذة وإظهار رسالة النجاح
+                document.getElementById('purchaseModal').style.display = 'none';
+                document.getElementById('successAlert').style.display = 'block';
+                setTimeout(() => {
+                  document.getElementById('successAlert').style.display = 'none';
+                }, 3000);
+
+                // تحديث الرصيد المحلي وعرض المنتجات وعدد المنتجات
+                userBalance = newBalance;
+                document.getElementById("user-balance").textContent = userBalance.toFixed(2) + " ج.م";
+                loadUserProducts();
+                updateProductCount();
+                disablePurchasedProducts(); // تحديث حالة أزرار الشراء
+              });
+            });
+          } else {
+            // الرصيد غير كافي
+            document.getElementById('purchaseModal').style.display = 'none';
+            document.getElementById('insufficientBalanceAlert').style.display = 'block';
+            setTimeout(() => {
+              document.getElementById('insufficientBalanceAlert').style.display = 'none';
+            }, 3000);
+          }
+        }).catch((error) => {
+          console.error("Error during purchase:", error);
+          document.getElementById('purchaseModal').style.display = 'none';
+          document.getElementById('insufficientBalanceAlert').style.display = 'block';
+          setTimeout(() => {
+            document.getElementById('insufficientBalanceAlert').style.display = 'none';
+          }, 3000);
+        });
+      });
+
+      // زر إلغاء الشراء
+      document.getElementById('cancelPurchase').addEventListener('click', function() {
+        document.getElementById('purchaseModal').style.display = 'none';
+      });
+
+      // بيانات أولية
+      document.getElementById("daily-income").textContent = "0 ج.م";
+    });
+  </script>
+</body>
+</html>
