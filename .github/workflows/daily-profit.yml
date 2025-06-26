@@ -2,7 +2,7 @@ name: Daily Profit Update
 
 on:
   schedule:
-    - cron: '0 0 * * *'  # كل يوم الساعة 12 منتصف الليل
+    - cron: '0 0 * * *'  # كل يوم الساعة 12 منتصف الليل UTC (3:00 AM EEST)
   workflow_dispatch: # لتشغيله يدويًا
 
 jobs:
