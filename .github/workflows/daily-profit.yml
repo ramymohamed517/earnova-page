@@ -1,0 +1,29 @@
+name: Daily Profit Update
+
+on:
+  schedule:
+    - cron: '0 0 * * *'  # كل يوم الساعة 12 صباحًا (UTC)
+  workflow_dispatch:       # علشان تقدر تشغله يدويًا لو حبيت
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+
+    defaults:
+      run:
+        working-directory: ./functions/profit
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '20'
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Run profit update script
+        run: node index.js
