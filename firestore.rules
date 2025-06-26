@@ -1,0 +1,145 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // ============ الدوال المساعدة (محفوظة كما هي) ============
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function isAdmin() {
+      return isSignedIn() && (
+        request.auth.uid == "cv1YaLEHLkTr1tTRDhTf43Dbcgm2" || 
+        request.auth.token.isAdmin == true
+      );
+    }
+
+    function isUser(userId) {
+      return isSignedIn() && request.auth.uid == userId;
+    }
+
+    function isOwner(resource) {
+      return isSignedIn() && resource.data.userId == request.auth.uid;
+    }
+
+    function isValidDeposit() {
+      return request.resource.data.keys().hasAll([
+        'senderPhone',
+        'receiverPhone',
+        'status',
+        'userId',
+        'timestamp'
+      ]) && 
+      request.resource.data.status == 'pending' &&
+      request.resource.data.userId == request.auth.uid &&
+      request.resource.data.senderPhone is string &&
+      request.resource.data.receiverPhone is string;
+    }
+
+    // ============ التعديلات المطلوبة ============
+    match /userProducts/{productId} {
+      // القراءة: المالك أو المشرف
+      allow read: if isOwner(resource) || isAdmin();
+      
+      // الإنشاء: مستخدم مسجل مع بيانات صحيحة
+      allow create: if isSignedIn() &&
+                   request.resource.data.userId == request.auth.uid &&
+                   request.resource.data.price > 0 &&
+                   request.resource.data.dailyProfit > 0 &&
+                   request.resource.data.daysRemaining > 0;
+      
+      // التحديث: السماح بتحديث الحقول المحددة فقط
+      allow update: if (isOwner(resource) &&
+                     request.resource.data.keys().hasOnly([
+                       'daysRemaining',
+                       'lastProfitUpdate',
+                       'purchaseDate'
+                     ])) ||
+                   isAdmin();
+      
+      // الحذف: للمشرفين فقط
+      allow delete: if isAdmin();
+    }
+
+    // ============ باقي القواعد (محفوظة كما هي بدون تغيير) ============
+    match /users/{userId} {
+      allow get: if isUser(userId) || isAdmin();
+      allow list: if isAdmin();
+      allow create: if isSignedIn();
+      allow update: if (isUser(userId) && 
+                     request.resource.data.keys().hasOnly([
+                       'email',
+                       'phoneNumber',
+                       'profileImage',
+                       'lastLogin'
+                     ])) ||
+                   (isAdmin() && 
+                    request.resource.data.keys().hasAny([
+                      'balance',
+                      'totalEarnings',
+                      'inviteCode',
+                      'level1Count',
+                      'level2Count',
+                      'level3Count'
+                    ]));
+      allow delete: if isAdmin();
+
+      match /invitedUsers/{invitedId} {
+        allow read: if isUser(userId) || isAdmin();
+        allow create: if isSignedIn() && request.resource.data.invitedBy == userId;
+        allow update, delete: if isAdmin();
+      }
+    }
+
+    match /deposits/{depositId} {
+      allow create: if isSignedIn() && isValidDeposit();
+      allow read: if isUser(resource.data.userId) || isAdmin();
+      allow update: if isAdmin() && 
+                    request.resource.data.keys().hasOnly(['status']) &&
+                    resource.data.status == 'pending' &&
+                    (request.resource.data.status == 'approved' || 
+                     request.resource.data.status == 'rejected');
+      allow delete: if isAdmin();
+    }
+
+    match /transactions/{transactionId} {
+      allow create: if isSignedIn() &&
+                   request.resource.data.userId == request.auth.uid &&
+                   request.resource.data.keys().hasAll([
+                     'type',
+                     'amount',
+                     'status',
+                     'timestamp'
+                   ]) &&
+                   request.resource.data.amount > 0;
+      allow read: if isUser(resource.data.userId) || isAdmin();
+      allow update: if isAdmin() && 
+                    request.resource.data.keys().hasOnly(['status']) &&
+                    resource.data.status == 'pending';
+      allow delete: if isAdmin();
+    }
+
+    match /giftCodes/{codeId} {
+      allow read: if isSignedIn();
+      allow create, update, delete: if isAdmin();
+    }
+
+    match /stats/{statId} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+
+    match /admins/{adminId} {
+      allow read, write: if isAdmin();
+    }
+
+    match /systemLogs/{logId} {
+      allow read: if isAdmin();
+      allow write: if request.time < timestamp.date(2025, 12, 31);
+    }
+
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}

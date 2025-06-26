@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
@@ -84,7 +83,7 @@ const firebaseConfig = {
     }
 
     .card i {
-      font-size: 20px; /* ✅ حجم مناسب للهاتف */
+      font-size: 20px;
       color: #00e5ff;
       margin-bottom: 8px;
       text-shadow: 0 0 4px rgba(0, 229, 255, 0.6);
@@ -134,11 +133,12 @@ const firebaseConfig = {
       justify-content: space-around;
       background-color: rgba(0, 0, 0, 0.8);
       border-top: 1px solid #00e5ff;
-      padding: 12px 0;
+      padding: 10px 0;
       position: sticky;
       bottom: 0;
       z-index: 1000;
       backdrop-filter: blur(6px);
+      width: 100%; /* Ensure it takes full width */
     }
 
     .nav-item {
@@ -147,6 +147,8 @@ const firebaseConfig = {
       font-size: 13px;
       text-decoration: none;
       transition: all 0.3s ease;
+      flex: 1; /* Distribute space evenly among 4 items */
+      margin: 0 2px; /* Small margin to avoid overlap */
     }
 
     .nav-item:hover {
@@ -248,10 +250,6 @@ const firebaseConfig = {
     <a href="account.html" class="nav-item">
       <i class="fas fa-user-circle"></i>
       حسابي
-    </a>
-    <a href="siting.html" class="nav-item">
-      <i class="fas fa-sliders-h"></i>
-      الإعدادات
     </a>
     <a href="support.html" class="nav-item">
       <i class="fas fa-headset"></i>
