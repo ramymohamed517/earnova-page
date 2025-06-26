@@ -15,24 +15,29 @@ async function updateProfits() {
     const data = doc.data();
     const userId = data.userId;
     const profitPerDay = data.profitPerDay || 0;
-    const purchaseTime = data.purchaseTime?.toDate?.() || null;
-    const lastProfitTime = data.lastProfitTime?.toDate?.() || purchaseTime;
+    const purchaseTime = data.purchaseTime ? new Date(data.purchaseTime) : null;
+    const lastProfitTime = data.lastProfitTime ? new Date(data.lastProfitTime) : purchaseTime;
 
     if (!userId || profitPerDay <= 0 || !purchaseTime) return;
 
     const now = new Date();
-    const timeDiff = (now - lastProfitTime) / (1000 * 60 * 60); // الفرق بالساعات
+    const timeDiff = (now - lastProfitTime) / (1000 * 60 * 60); // بالساعات
 
-    if (timeDiff >= 24) { // لو مر 24 ساعة
+    if (timeDiff >= 24) {
       const userRef = db.collection("users").doc(userId);
       const updateBalance = userRef.update({
         balance: admin.firestore.FieldValue.increment(profitPerDay)
       });
 
       const productRef = db.collection("userProducts").doc(doc.id);
-      const updateTime = productRef.update({ lastProfitTime: admin.firestore.Timestamp.fromDate(now) });
+      const updateTime = productRef.update({
+        lastProfitTime: admin.firestore.Timestamp.fromDate(now)
+      });
 
       updates.push(updateBalance, updateTime);
+      console.log(`✅ تم إضافة ${profitPerDay} إلى رصيد المستخدم ${userId}`);
+    } else {
+      console.log(`⏱ لم يمر 24 ساعة بعد على ${doc.id}`);
     }
   });
 
@@ -41,6 +46,7 @@ async function updateProfits() {
 }
 
 updateProfits().catch(console.error);
+
 
 
 
