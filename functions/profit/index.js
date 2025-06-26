@@ -1,5 +1,4 @@
 const admin = require("firebase-admin");
-
 const serviceAccount = JSON.parse(process.env.FIREBASE_KEY);
 
 admin.initializeApp({
@@ -16,31 +15,33 @@ async function updateProfits() {
     const data = doc.data();
     const userId = data.userId;
     const profitPerDay = data.profitPerDay || 0;
-    const purchaseTime = data.purchaseTime ? new Date(data.purchaseTime) : null;
-    const lastProfitTime = data.lastProfitTime ? new Date(data.lastProfitTime) : purchaseTime;
+    const purchaseTime = data.purchaseTime?.toDate?.() || null;
+    const lastProfitTime = data.lastProfitTime?.toDate?.() || purchaseTime;
 
     if (!userId || profitPerDay <= 0 || !purchaseTime) return;
 
     const now = new Date();
     const timeDiff = (now - lastProfitTime) / (1000 * 60 * 60); // الفرق بالساعات
 
-    if (timeDiff >= 24) { // لو مر 24 ساعة أو أكتر
+    if (timeDiff >= 24) { // لو مر 24 ساعة
       const userRef = db.collection("users").doc(userId);
-      const update = userRef.update({
+      const updateBalance = userRef.update({
         balance: admin.firestore.FieldValue.increment(profitPerDay)
       });
 
-      // تحديث lastProfitTime في userProducts
       const productRef = db.collection("userProducts").doc(doc.id);
-      updates.push(productRef.update({ lastProfitTime: now }), update);
+      const updateTime = productRef.update({ lastProfitTime: admin.firestore.Timestamp.fromDate(now) });
+
+      updates.push(updateBalance, updateTime);
     }
   });
 
   await Promise.all(updates);
-  console.log("✅ Profits updated for all users");
+  console.log("✅ Profits updated for all eligible products");
 }
 
 updateProfits().catch(console.error);
+
 
 
 
