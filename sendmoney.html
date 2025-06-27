@@ -6,24 +6,8 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js";
-    import { 
-      getAuth, 
-      onAuthStateChanged, 
-      reload 
-    } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-auth.js";
-    import { 
-      getFirestore, 
-      doc, 
-      getDoc, 
-      collection, 
-      query, 
-      where, 
-      getDocs, 
-      addDoc, 
-      writeBatch,
-      increment,
-      serverTimestamp
-    } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js";
+    import { getAuth, onAuthStateChanged, reload } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-auth.js";
+    import { getFirestore, doc, getDoc, collection, query, where, getDocs, writeBatch, serverTimestamp } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js";
 
     const firebaseConfig = {
       apiKey: "AIzaSyCmv3HQkT0PFg_66im4vSbna4oQu29dTkc",
@@ -52,7 +36,6 @@
       }
 
       try {
-        // تحديث حالة المصادقة
         await reload(user);
         const token = await user.getIdToken(true);
         console.log("Auth token:", token);
@@ -60,7 +43,6 @@
         const uid = user.uid;
         console.log("User UID:", uid);
 
-        // جلب البيانات بشكل متوازي
         const [userDoc, productsSnap] = await Promise.all([
           getDoc(doc(db, "users", uid)),
           getDocs(query(collection(db, "userProducts"), where("userId", "==", uid)))
@@ -75,7 +57,6 @@
         balanceSpan.textContent = balance.toFixed(2);
         console.log("User balance:", balance);
 
-        // التحقق من الشروط
         if (productsSnap.empty) {
           throw new Error("يجب شراء منتج واحد على الأقل قبل السحب");
         }
@@ -84,11 +65,9 @@
           throw new Error("الحد الأدنى للسحب هو 100 جنيه");
         }
 
-        // تفعيل واجهة المستخدم
         withdrawBtn.disabled = false;
         statusText.innerHTML = '<span style="color: #00C851;">✅ يمكنك طلب السحب الآن</span>';
 
-        // معالجة طلب السحب
         withdrawBtn.onclick = async () => {
           const requestedAmount = parseFloat(amountInput.value);
           console.log("Requested amount:", requestedAmount);
@@ -104,36 +83,29 @@
             const tax = requestedAmount * 0.2;
             const finalAmount = requestedAmount - tax;
 
-            // إعداد بيانات السحب
             const withdrawData = {
-              userId: uid, // تأكد أنه نفس uid المستخدم المسجل
-              amountRequested: requestedAmount, // يجب أن يكون ≥ 100
-              tax: tax, // يجب أن يكون ≥ 0
-              finalAmount: finalAmount, // يجب أن يكون > 0
-              status: "قيد المراجعة", // يجب أن تكون هذه القيمة بالضبط
-              createdAt: serverTimestamp(), // استخدام serverTimestamp بدل new Date()
+              userId: uid,
+              amountRequested: requestedAmount,
+              tax: tax,
+              finalAmount: finalAmount,
+              status: "قيد المراجعة",
+              createdAt: serverTimestamp(),
               updatedAt: serverTimestamp()
             };
 
-            // استخدم Batch لضمان المعاملة الذرية
             const batch = writeBatch(db);
-            
-            // 1. إنشاء طلب السحب
             const withdrawRef = doc(collection(db, "withdrawRequests"));
             batch.set(withdrawRef, withdrawData);
 
-            // 2. تحديث رصيد المستخدم
             const userRef = doc(db, "users", uid);
             batch.update(userRef, {
               balance: increment(-requestedAmount),
               lastWithdraw: serverTimestamp()
             });
 
-            // تنفيذ المعاملة
             await batch.commit();
             console.log("Withdraw request submitted successfully");
 
-            // عرض رسالة النجاح
             statusText.innerHTML = `
               <div style="color: #00C851;">
                 <span>✅ تم تقديم طلب السحب بنجاح!</span>
@@ -144,12 +116,11 @@
               </div>
             `;
 
-            // تحديث الرصيد مباشرة
             balanceSpan.textContent = (balance - requestedAmount).toFixed(2);
 
-            // تحويل المستخدم بعد 3 ثواني
+            const basePath = window.location.pathname.replace(/[^/]*$/, '');
             setTimeout(() => {
-              window.location.href = "history.html";
+              window.location.href = basePath + 'history.html';
             }, 3000);
 
           } catch (error) {

@@ -65,8 +65,9 @@
 
     .balance-box p {
       margin-top: 10px;
-      font-size: 32px;
+      font-size: 36px; /* زيادة حجم الرصيد عشان يكون أوضح */
       color: #fff;
+      font-weight: bold;
     }
 
     .buttons {
@@ -228,8 +229,7 @@
           <span class="type">إيداع</span>
           <span class="amount">لا يوجد</span>
           <span class="date"></span>
-          
-      </div>
+        </div>
         <div class="transaction">
           <span class="type">سحب</span>
           <span class="amount">لا يوجد</span>
@@ -258,15 +258,11 @@
       <i class="fas fa-coins"></i>
       المنتجات
     </a>
-    <a href="#" class="nav-item">
+    <a href="account.html" class="nav-item">
       <i class="fas fa-user"></i>
       حسابي
     </a>
-    <a href="#" class="nav-item">
-      <i class="fas fa-cogs"></i>
-      الإعدادات
-    </a>
-    <a href="#" class="nav-item">
+    <a href="support.html" class="nav-item">
       <i class="fas fa-headset"></i>
       الدعم
     </a>
@@ -299,12 +295,10 @@
         console.log("User signed in:", user.uid);
         const userRef = doc(db, "users", user.uid);
 
-        // فحص حالة المستخدم
         onSnapshot(userRef, async (docSnap) => {
           try {
             if (!docSnap.exists()) {
               console.log("No user document found, creating new one...");
-              // مستخدم جديد: إنشاء مستند مع المكافأة
               await setDoc(userRef, {
                 balance: 80,
                 welcomeBonusClaimed: true,
@@ -320,7 +314,6 @@
             } else {
               const data = docSnap.data();
               console.log("User document data:", data);
-              // فحص إذا كان المستخدم لسه ما خدش المكافأة
               if (!data.welcomeBonusClaimed || data.balance === 0) {
                 console.log("Adding welcome bonus to existing user...");
                 await updateDoc(userRef, {
@@ -331,7 +324,6 @@
                 showWelcomeBonusAlert();
                 balanceSpan.textContent = "80 ج.م";
               } else {
-                // عرض الرصيد الحالي
                 balanceSpan.textContent = (data.balance || 0) + " ج.م";
               }
             }
@@ -349,7 +341,6 @@
       }
     });
 
-    // دالة لعرض إشعار المكافأة
     function showWelcomeBonusAlert() {
       welcomeBonusAlert.style.display = "block";
       setTimeout(() => {
@@ -357,7 +348,6 @@
       }, 3000);
     }
 
-    // دالة لتوليد رمز دعوة
     function generateInviteCode() {
       return Math.floor(100000 + Math.random() * 900000).toString();
     }
