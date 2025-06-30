@@ -2,7 +2,7 @@
 <html lang="ar" dir="rtl">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
   <title>شركة EARNOVA</title>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
   <style>
@@ -18,6 +18,9 @@
       display: flex;
       flex-direction: column;
       min-height: 100vh;
+      overflow-x: hidden; /* منع التمرير الأفقي */
+      padding-bottom: 70px; /* إفساح مجال للشريط السفلي */
+      will-change: background-position; /* تحسين أداء الـ animation */
     }
 
     @keyframes gradientBG {
@@ -28,7 +31,7 @@
 
     .image-container {
       width: 100%;
-      max-width: 600px;
+      max-width: 90vw; /* ضمان أن الصورة مش هتخرج عن الشاشة */
       margin: 20px auto;
       padding: 10px;
     }
@@ -46,20 +49,30 @@
     }
 
     .launch-text {
-      margin-top: 20px;
+      margin: 20px 10px;
       font-size: 24px;
       font-weight: bold;
       color: #00ccff;
     }
 
     .company-news {
-      margin: 30px auto;
+      margin: 30px 10px;
       padding: 20px;
-      max-width: 700px;
+      max-width: 90vw; /* ضمان أن النص مش هيخرج عن الشاشة */
       background-color: rgba(0, 0, 0, 0.5);
       border-radius: 16px;
       box-shadow: 0 0 15px rgba(0,0,0,0.5);
       line-height: 1.8;
+      font-size: 18px;
+    }
+
+    .company-news h2 {
+      font-size: 22px;
+      margin-bottom: 15px;
+    }
+
+    .company-news p {
+      margin: 10px 0;
     }
 
     .bottom-nav {
@@ -68,8 +81,10 @@
       background-color: rgba(0, 0, 0, 0.7);
       border-top: 1px solid #00e5ff;
       padding: 10px 0;
-      position: sticky;
+      position: fixed; /* تغيير من sticky إلى fixed */
       bottom: 0;
+      left: 0;
+      right: 0;
       z-index: 1000;
     }
 
@@ -79,6 +94,8 @@
       font-size: 12px;
       text-decoration: none;
       transition: color 0.3s ease;
+      flex: 1; /* توزيع الأزرار بالتساوي */
+      padding: 5px;
     }
 
     .nav-item:hover {
@@ -92,12 +109,57 @@
     }
 
     @media (max-width: 480px) {
+      .image-container {
+        padding: 5px;
+      }
+
       .launch-text {
-        font-size: 20px;
+        font-size: 18px;
+        margin: 15px 5px;
       }
 
       .company-news {
         padding: 15px;
+        font-size: 16px;
+        margin: 20px 5px;
+      }
+
+      .company-news h2 {
+        font-size: 20px;
+      }
+
+      .bottom-nav {
+        padding: 8px 0;
+      }
+
+      .nav-item {
+        font-size: 10px;
+        padding: 3px;
+      }
+
+      .nav-item i {
+        font-size: 18px;
+      }
+    }
+
+    @media (max-width: 360px) {
+      .launch-text {
+        font-size: 16px;
+      }
+
+      .company-news {
+        font-size: 14px;
+      }
+
+      .company-news h2 {
+        font-size: 18px;
+      }
+
+      .nav-item {
+        font-size: 9px;
+      }
+
+      .nav-item i {
         font-size: 16px;
       }
     }
@@ -131,6 +193,7 @@
 
   <!-- الشريط السفلي -->
   <div class="bottom-nav">
+    </a>
     <a href="index.html" class="nav-item">
       <i class="fas fa-home"></i>
       الرئيسية

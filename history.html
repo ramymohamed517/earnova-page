@@ -3,63 +3,76 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>سجل الإيداعات</title>
+  <title>سجل العمليات</title>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-
+  <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;700&display=swap" rel="stylesheet">
   <style>
-    body {
-      margin: 0;
-      padding: 0;
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-      background: linear-gradient(45deg, #3a1c71, #d76d77, #ffaf7b);
-      background-size: 400% 400%;
-      animation: gradientBG 15s ease infinite;
-      color: #fff;
+    :root {
+      --primary: #FFD700;
+      --secondary: #FFA500;
+      --success: #00C851;
+      --error: #ff4444;
+      --warning: #ffbb33;
+      --dark: #1a1a1a;
     }
 
-    @keyframes gradientBG {
-      0% { background-position: 0% 50%; }
-      50% { background-position: 100% 50%; }
-      100% { background-position: 0% 50%; }
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      background: linear-gradient(135deg, #000000, #1a1a1a);
+      color: white;
+      font-family: 'Tajawal', sans-serif;
+      min-height: 100vh;
+      padding: 15px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
     }
 
     .container {
-      max-width: 1000px;
-      margin: auto;
-      padding: 20px;
+      max-width: 100%;
+      width: 100%;
+      padding: 15px;
+      margin-bottom: 80px;
     }
 
     .header-image {
       width: 100%;
-      max-height: 180px;
+      max-height: 120px;
       object-fit: cover;
-      border-bottom-left-radius: 30px;
-      border-bottom-right-radius: 30px;
-      box-shadow: 0 5px 20px rgba(0,0,0,0.3);
+      border-bottom-left-radius: 20px;
+      border-bottom-right-radius: 20px;
+      box-shadow: 0 5px 15px rgba(0,0,0,0.3);
     }
 
     h1 {
       text-align: center;
-      margin: 20px 0;
-      color: #fff;
+      margin: 15px 0;
+      color: var(--primary);
       text-shadow: 1px 1px 5px rgba(0,0,0,0.3);
+      font-size: 24px;
     }
 
     table {
       width: 100%;
       border-collapse: collapse;
       background: rgba(255, 255, 255, 0.1);
-      border-radius: 12px;
+      border-radius: 10px;
       overflow: hidden;
       backdrop-filter: blur(5px);
       box-shadow: 0 5px 15px rgba(0,0,0,0.2);
     }
 
     th, td {
-      padding: 12px;
+      padding: 8px;
       text-align: center;
       color: white;
       border-bottom: 1px solid rgba(255,255,255,0.2);
+      font-size: 14px;
     }
 
     th {
@@ -67,8 +80,44 @@
       font-weight: bold;
     }
 
+    tr.deposit { background-color: rgba(0, 200, 81, 0.2); }
+    tr.withdraw { background-color: rgba(255, 68, 68, 0.2); }
+
     tr:hover {
-      background-color: rgba(255, 255, 255, 0.1);
+      background-color: rgba(255, 255, 255, 0.15);
+    }
+
+    .bottom-nav {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      background: rgba(30, 30, 30, 0.9);
+      border-top: 1px solid var(--primary);
+      display: flex;
+      justify-content: space-around;
+      padding: 8px 0;
+      box-shadow: 0 -2px 10px rgba(255, 215, 0, 0.2);
+      z-index: 1000;
+    }
+
+    .bottom-nav button {
+      background: none;
+      border: none;
+      color: var(--primary);
+      font-family: 'Tajawal', sans-serif;
+      font-size: 14px;
+      padding: 8px;
+      cursor: pointer;
+      transition: all 0.3s;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+    }
+
+    .bottom-nav button:hover {
+      color: var(--secondary);
+      transform: scale(1.1);
     }
 
     @media(max-width: 768px) {
@@ -77,8 +126,8 @@
       }
 
       tr {
-        margin-bottom: 15px;
-        border-radius: 12px;
+        margin-bottom: 10px;
+        border-radius: 10px;
         overflow: hidden;
         background: rgba(255,255,255,0.05);
       }
@@ -87,6 +136,7 @@
         text-align: right;
         padding-right: 50%;
         position: relative;
+        font-size: 12px;
       }
 
       td::before {
@@ -95,26 +145,42 @@
         right: 10px;
         font-weight: bold;
         color: #fff;
+        font-size: 12px;
       }
 
       th {
         display: none;
       }
+
+      .header-image {
+        max-height: 100px;
+      }
+
+      h1 {
+        font-size: 20px;
+      }
+
+      .bottom-nav button {
+        font-size: 12px;
+        padding: 6px;
+      }
     }
   </style>
 </head>
 <body>
-
-  <img src="https://via.placeholder.com/1000x180?text=سجل+الإيداعات" class="header-image" alt="صورة علوية">
+  <img src="https://picsum.photos/1000/180" class="header-image" alt="صورة علوية">
 
   <div class="container">
-    <h1>📜 سجل الإيداعات</h1>
-    <table id="depositTable">
+    <h1>📜 سجل العمليات</h1>
+    <table id="transactionTable">
       <thead>
         <tr>
+          <th>نوع العملية</th>
           <th>رقم المرسل</th>
           <th>رقم المستلم</th>
           <th>المبلغ</th>
+          <th>الضريبة</th>
+          <th>صافي المبلغ</th>
           <th>الحالة</th>
           <th>التاريخ</th>
         </tr>
@@ -125,11 +191,19 @@
     </table>
   </div>
 
-  <!-- Firebase -->
-  <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-firestore-compat.js"></script>
+   <div class="bottom-nav">
+    <button data-page="index.html">الرئيسية</button>
+    <button data-page="profit.html">💰 الرصيد</button>
+    <button data-page="money.html">👤منتجات</button>
+    <button data-page="invite.html">📨 الدعوة</button>
+    <button data-page="account.html">حسابي  </button>
+  </div>
 
-  <script>
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js";
+    import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-auth.js";
+    import { getFirestore, collection, query, where, getDocs, orderBy, addDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js";
+
     const firebaseConfig = {
       apiKey: "AIzaSyCmv3HQkT0PFg_66im4vSbna4oQu29dTkc",
       authDomain: "earnovalogin.firebaseapp.com",
@@ -139,48 +213,176 @@
       appId: "1:488267724180:web:b2a3376a94735bca6e8b81"
     };
 
-    firebase.initializeApp(firebaseConfig);
-    const db = firebase.firestore();
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+    const auth = getAuth(app);
 
-    const tbody = document.querySelector('#depositTable tbody');
+    const tbody = document.querySelector('#transactionTable tbody');
 
-    async function fetchDeposits() {
-      const snapshot = await db.collection("deposits").orderBy("timestamp", "desc").get();
-      snapshot.forEach(doc => {
-        const data = doc.data();
-        const row = document.createElement("tr");
-
-        const sender = document.createElement("td");
-        sender.setAttribute("data-label", "رقم المرسل");
-        sender.textContent = data.senderPhone || '---';
-
-        const receiver = document.createElement("td");
-        receiver.setAttribute("data-label", "رقم المستلم");
-        receiver.textContent = data.receiverPhone || '---';
-
-        const amount = document.createElement("td");
-        amount.setAttribute("data-label", "المبلغ");
-        amount.textContent = data.amount ? `${data.amount} EGP` : 'غير محدد';
-
-        const status = document.createElement("td");
-        status.setAttribute("data-label", "الحالة");
-        status.textContent = data.status === 'approved' ? 'تم بنجاح' : (data.status || '---');
-
-        const time = document.createElement("td");
-        time.setAttribute("data-label", "التاريخ");
-        const date = data.timestamp?.toDate?.();
-        time.textContent = date ? date.toLocaleString('ar-EG') : '---';
-
-        row.appendChild(sender);
-        row.appendChild(receiver);
-        row.appendChild(amount);
-        row.appendChild(status);
-        row.appendChild(time);
-        tbody.appendChild(row);
-      });
+    // دالة التنقل
+    function goTo(page) {
+      const basePath = window.location.pathname.replace(/[^/]*$/, '');
+      window.location.href = basePath + page;
     }
 
-    fetchDeposits();
+    // إضافة event listeners لأزرار الشريط السفلي
+    document.querySelectorAll('.bottom-nav button').forEach(button => {
+      button.addEventListener('click', () => {
+        const page = button.getAttribute('data-page');
+        goTo(page);
+      });
+    });
+
+    onAuthStateChanged(auth, async (user) => {
+      if (!user) {
+        tbody.innerHTML = '<tr><td colspan="8">❌ يجب تسجيل الدخول أولاً</td></tr>';
+        setTimeout(() => window.location.href = "login.html", 2000);
+        return;
+      }
+
+      try {
+        const uid = user.uid;
+        console.log("User UID:", uid);
+        const [depositsSnapshot, withdrawsSnapshot] = await Promise.all([
+          getDocs(query(
+            collection(db, "deposits"),
+            where("userId", "==", uid),
+            orderBy("timestamp", "desc")
+          )).catch(err => {
+            console.error("Error fetching deposits:", err);
+            return { empty: true, forEach: () => {} };
+          }),
+          getDocs(query(
+            collection(db, "withdrawRequests"),
+            where("userId", "==", uid),
+            orderBy("createdAt", "desc")
+          )).catch(err => {
+            console.error("Error fetching withdraws:", err);
+            return { empty: true, forEach: () => {} };
+          })
+        ]);
+
+        console.log("Deposits count:", depositsSnapshot.size);
+        console.log("Withdraws count:", withdrawsSnapshot.size);
+
+        if (depositsSnapshot.empty && withdrawsSnapshot.empty) {
+          tbody.innerHTML = '<tr><td colspan="8">لا توجد عمليات مسجلة</td></tr>';
+          return;
+        }
+
+        tbody.innerHTML = '';
+
+        depositsSnapshot.forEach(doc => {
+          console.log("Deposit:", doc.data());
+          const data = doc.data();
+          const row = document.createElement("tr");
+          row.className = "deposit";
+
+          const type = document.createElement("td");
+          type.setAttribute("data-label", "نوع العملية");
+          type.textContent = "إيداع";
+
+          const sender = document.createElement("td");
+          sender.setAttribute("data-label", "رقم المرسل");
+          sender.textContent = data.senderPhone || '---';
+
+          const receiver = document.createElement("td");
+          receiver.setAttribute("data-label", "رقم المستلم");
+          receiver.textContent = data.receiverPhone || '---';
+
+          const amount = document.createElement("td");
+          amount.setAttribute("data-label", "المبلغ");
+          amount.textContent = data.amount ? `${data.amount.toFixed(2)} EGP` : 'غير محدد';
+
+          const tax = document.createElement("td");
+          tax.setAttribute("data-label", "الضريبة");
+          tax.textContent = '---';
+
+          const finalAmount = document.createElement("td");
+          finalAmount.setAttribute("data-label", "صافي المبلغ");
+          finalAmount.textContent = data.amount ? `${data.amount.toFixed(2)} EGP` : 'غير محدد';
+
+          const status = document.createElement("td");
+          status.setAttribute("data-label", "الحالة");
+          status.textContent = data.status === 'approved' ? 'تم بنجاح' : (data.status || '---');
+
+          const time = document.createElement("td");
+          time.setAttribute("data-label", "التاريخ");
+          const date = data.timestamp?.toDate?.();
+          time.textContent = date ? date.toLocaleString('ar-EG') : '---';
+
+          row.appendChild(type);
+          row.appendChild(sender);
+          row.appendChild(receiver);
+          row.appendChild(amount);
+          row.appendChild(tax);
+          row.appendChild(finalAmount);
+          row.appendChild(status);
+          row.appendChild(time);
+          tbody.appendChild(row);
+        });
+
+        withdrawsSnapshot.forEach(doc => {
+          console.log("Withdraw:", doc.data());
+          const data = doc.data();
+          const row = document.createElement("tr");
+          row.className = "withdraw";
+
+          const type = document.createElement("td");
+          type.setAttribute("data-label", "نوع العملية");
+          type.textContent = "سحب";
+
+          const sender = document.createElement("td");
+          sender.setAttribute("data-label", "رقم المرسل");
+          sender.textContent = '---';
+
+          const receiver = document.createElement("td");
+          receiver.setAttribute("data-label", "رقم المستلم");
+          receiver.textContent = '---';
+
+          const amount = document.createElement("td");
+          amount.setAttribute("data-label", "المبلغ");
+          amount.textContent = data.amountRequested ? `${data.amountRequested.toFixed(2)} EGP` : 'غير محدد';
+
+          const tax = document.createElement("td");
+          tax.setAttribute("data-label", "الضريبة");
+          tax.textContent = data.tax ? `${data.tax.toFixed(2)} EGP` : '---';
+
+          const finalAmount = document.createElement("td");
+          finalAmount.setAttribute("data-label", "صافي المبلغ");
+          finalAmount.textContent = data.finalAmount ? `${data.finalAmount.toFixed(2)} EGP` : 'غير محدد';
+
+          const status = document.createElement("td");
+          status.setAttribute("data-label", "الحالة");
+          status.textContent = data.status || '---';
+
+          const time = document.createElement("td");
+          time.setAttribute("data-label", "التاريخ");
+          const date = data.createdAt?.toDate?.();
+          time.textContent = date ? date.toLocaleString('ar-EG') : '---';
+
+          row.appendChild(type);
+          row.appendChild(sender);
+          row.appendChild(receiver);
+          row.appendChild(amount);
+          row.appendChild(tax);
+          row.appendChild(finalAmount);
+          row.appendChild(status);
+          row.appendChild(time);
+          tbody.appendChild(row);
+        });
+
+      } catch (error) {
+        console.error("Error loading transactions:", error, "Error code:", error.code, "Error message:", error.message);
+        await addDoc(collection(db, "systemLogs"), {
+          error: error.message,
+          code: error.code,
+          userId: user ? user.uid : "unknown",
+          timestamp: serverTimestamp()
+        });
+        tbody.innerHTML = '<tr><td colspan="8">حدث خطأ أثناء تحميل العمليات</td></tr>';
+      }
+    });
   </script>
 </body>
 </html>
