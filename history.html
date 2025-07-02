@@ -87,38 +87,39 @@
       background-color: rgba(255, 255, 255, 0.15);
     }
 
-    .bottom-nav {
-      position: fixed;
-      bottom: 0;
-      left: 0;
-      right: 0;
-      background: rgba(30, 30, 30, 0.9);
-      border-top: 1px solid var(--primary);
-      display: flex;
-      justify-content: space-around;
-      padding: 8px 0;
-      box-shadow: 0 -2px 10px rgba(255, 215, 0, 0.2);
-      z-index: 1000;
-    }
+.bottom-nav {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: rgba(30, 30, 30, 0.95);
+  border-top: 2px solid var(--primary);
+  display: flex;
+  justify-content: space-around;
+  padding: 12px 0;
+  box-shadow: 0 -2px 15px rgba(255, 215, 0, 0.3);
+  z-index: 1000;
+  height: 65px; /* أكبر ارتفاع */
+}
 
-    .bottom-nav button {
-      background: none;
-      border: none;
-      color: var(--primary);
-      font-family: 'Tajawal', sans-serif;
-      font-size: 14px;
-      padding: 8px;
-      cursor: pointer;
-      transition: all 0.3s;
-      display: flex;
-      align-items: center;
-      gap: 5px;
-    }
+.bottom-nav button {
+  background: none;
+  border: none;
+  color: var(--primary);
+  font-family: 'Tajawal', sans-serif;
+  font-size: 16px; /* أكبر حجم خط */
+  padding: 10px;
+  cursor: pointer;
+  transition: all 0.3s;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
 
-    .bottom-nav button:hover {
-      color: var(--secondary);
-      transform: scale(1.1);
-    }
+.bottom-nav button:hover {
+  color: var(--secondary);
+  transform: scale(1.15);
+}
 
     @media(max-width: 768px) {
       table, thead, tbody, th, td, tr {
@@ -196,7 +197,6 @@
     <button data-page="profit.html">💰 الرصيد</button>
     <button data-page="money.html">👤منتجات</button>
     <button data-page="invite.html">📨 الدعوة</button>
-    <button data-page="account.html">حسابي  </button>
   </div>
 
   <script type="module">
