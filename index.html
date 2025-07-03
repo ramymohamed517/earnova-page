@@ -227,7 +227,14 @@ const firebaseConfig = {
           <p>آخر التحديثات والعروض</p>
         </div>
       </a>
-
+      <a href="spin.html">
+        <div class="card">
+          <i class="fas fa-newspaper"></i>
+          <div class="icon-line"></div>
+          <h3>شارك واربح</h3>
+          <p>شارك واحصل علي المال</p>
+        </div>
+       </a>
       <a href="invite.html">
       <div class="card">
         <i class="fas fa-users"></i>
@@ -256,7 +263,23 @@ const firebaseConfig = {
       الدعم
     </a>
   </div>
+<script>
+  // منع كليك يمين
+  document.addEventListener('contextmenu', function(e) {
+    e.preventDefault();
+  });
 
+  // منع اختصارات الكيبورد
+  document.addEventListener('keydown', function(e) {
+    if (
+      e.key === 'F12' ||
+      (e.ctrlKey && e.shiftKey && (e.key === 'I' || e.key === 'J')) ||
+      (e.ctrlKey && e.key === 'U')
+    ) {
+      e.preventDefault();
+    }
+  });
+</script>
 </body>
 </html>
 

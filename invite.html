@@ -369,6 +369,23 @@
       setTimeout(() => { copyStatus.textContent = ""; }, 3000);
     }
   </script>
+  <script>
+  // منع كليك يمين
+  document.addEventListener('contextmenu', function(e) {
+    e.preventDefault();
+  });
+
+  // منع اختصارات الكيبورد
+  document.addEventListener('keydown', function(e) {
+    if (
+      e.key === 'F12' ||
+      (e.ctrlKey && e.shiftKey && (e.key === 'I' || e.key === 'J')) ||
+      (e.ctrlKey && e.key === 'U')
+    ) {
+      e.preventDefault();
+    }
+  });
+</script>
 </body>
 </html>
 
