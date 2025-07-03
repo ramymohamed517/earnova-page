@@ -309,7 +309,7 @@
         }
 
         codeInput.value = inviteCode;
-        linkInput.value = `https://ramymohamed517.github.io/earnova-page?ic=${inviteCode}`;
+        linkInput.value = `https://earnovapage.netlify.app/?ic=${inviteCode}`
 
         const data = snap.exists() ? snap.data() : {};
         const c1 = data.level1Count || 0;
@@ -369,6 +369,23 @@
       setTimeout(() => { copyStatus.textContent = ""; }, 3000);
     }
   </script>
+  <script>
+  // منع كليك يمين
+  document.addEventListener('contextmenu', function(e) {
+    e.preventDefault();
+  });
+
+  // منع اختصارات الكيبورد
+  document.addEventListener('keydown', function(e) {
+    if (
+      e.key === 'F12' ||
+      (e.ctrlKey && e.shiftKey && (e.key === 'I' || e.key === 'J')) ||
+      (e.ctrlKey && e.key === 'U')
+    ) {
+      e.preventDefault();
+    }
+  });
+</script>
 </body>
 </html>
 
